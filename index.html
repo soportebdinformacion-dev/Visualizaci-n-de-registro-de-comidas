@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Agrícola Huarmey - Gestión de Comensales</title>
+  <meta name="theme-color" content="#d32f2f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Comedores AH">
+  
+  <!-- FontAwesome & Google Fonts -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-red: #d32f2f;
+      --primary-red-hover: #b71c1c;
+      --primary-red-light: #ffebee;
+      --secondary-green: #2e7d32;
+      --secondary-green-light: #e8f5e9;
+      --warning-yellow: #f57f17;
+      --warning-light: #fffde7;
+      --neutral-bg: #f4f6f8;
+      --card-bg: #ffffff;
+      --text-dark: #2c3e50;
+      --text-muted: #7f8c8d;
+      --border-color: #e2e8f0;
+      --alert-red: #ffebee;
+      --alert-red-text: #c62828;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--neutral-bg);
+      color: var(--text-dark);
+      padding-bottom: 30px;
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(135deg, var(--primary-red), #b71c1c);
+      color: white;
+      padding: 12px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-badge {
+      background: white;
+      color: var(--primary-red);
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.2rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .brand-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .brand-subtitle {
+      font-size: 0.7rem;
+      opacity: 0.85;
+      font-weight: 300;
+    }
+
+    .header-right {
+      text-align: right;
+    }
+
+    .clock-time {
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .clock-date {
+      font-size: 0.68rem;
+      opacity: 0.9;
+    }
+
+    /* Status Bar */
+    .status-bar {
+      background-color: #fff;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.8rem;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .online-dot { background-color: var(--secondary-green); box-shadow: 0 0 6px var(--secondary-green); }
+    .offline-dot { background-color: var(--primary-red); box-shadow: 0 0 6px var(--primary-red); }
+
+    .sync-btn {
+      background-color: var(--secondary-green-light);
+      color: var(--secondary-green);
+      border: 1px solid var(--secondary-green);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s;
+    }
+
+    .sync-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    /* Section Title */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title i {
+      color: var(--primary-red);
+    }
+
+    /* Filters Section */
+    .filter-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      margin-bottom: 16px;
+      border: 1px solid var(--border-color);
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .filter-group label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .filter-control {
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      font-size: 0.85rem;
+      outline: none;
+      background-color: #fff;
+    }
+
+    .filter-control:focus {
+      border-color: var(--primary-red);
+    }
+
+    /* KPI Cards Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    @media (min-width: 768px) {
+      .kpi-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .kpi-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      border: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+    }
+
+    .kpi-card.batallon-almuerzo::before { background-color: var(--primary-red); }
+    .kpi-card.batallon-dieta::before { background-color: var(--warning-yellow); }
+    .kpi-card.modulos-almuerzo::before { background-color: var(--secondary-green); }
+    .kpi-card.modulos-dieta::before { background-color: #0288d1; }
+
+    .kpi-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .kpi-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .kpi-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+    }
+
+    .batallon-almuerzo .kpi-icon { background: var(--primary-red-light); color: var(--primary-red); }
+    .batallon-dieta .kpi-icon { background: var(--warning-light); color: var(--warning-yellow); }
+    .modulos-almuerzo .kpi-icon { background: var(--secondary-green-light); color: var(--secondary-green); }
+    .modulos-dieta .kpi-icon { background: #e1f5fe; color: #0288d1; }
+
+    .kpi-value {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    /* Table Container */
+    .table-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      border: 1px solid var(--border-color);
+      overflow: hidden;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      max-height: 500px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+
+    th {
+      background-color: #f8fafc;
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 12px 14px;
+      border-bottom: 2px solid var(--border-color);
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border-color);
+      white-space: nowrap;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Omitting Area Alert Style */
+    tr.omitted-row {
+      background-color: var(--alert-red) !important;
+      color: var(--alert-red-text);
+    }
+
+    tr.omitted-row td {
+      border-color: #ffcdd2;
+    }
+
+    .badge-omitted {
+      background: #ef5350;
+      color: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      margin-left: 6px;
+    }
+
+    /* Action Form Floating / Mobile Friendly Modal */
+    .fab-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: var(--primary-red);
+      color: white;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      box-shadow: 0 4px 12px rgba(211, 47, 47, 0.4);
+      border: none;
+      cursor: pointer;
+      z-index: 900;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top:0; left:0; right:0; bottom:0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    @media (min-width: 600px) {
+      .modal-overlay {
+        align-items: center;
+      }
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background: white;
+      width: 100%;
+      max-width: 500px;
+      border-radius: 16px 16px 0 0;
+      padding: 20px;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+    }
+
+    @media (min-width: 600px) {
+      .modal-card {
+        border-radius: 16px;
+        transform: translateY(20px);
+      }
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--text-dark);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .btn-submit {
+      width: 100%;
+      background-color: var(--primary-red);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    /* Loader */
+    .loader-spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid var(--primary-red);
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 30px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="brand-container">
+      <div class="logo-badge">AH</div>
+      <div>
+        <div class="brand-title">Agrícola Huarmey</div>
+        <div class="brand-subtitle">Control de Comensales</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="clock-time" id="clockTime">--:--:--</div>
+      <div class="clock-date" id="clockDate">--/--/----</div>
+    </div>
+  </header>
+
+  <!-- Connection Status Bar -->
+  <div class="status-bar">
+    <div class="status-indicator">
+      <span class="status-dot online-dot" id="statusDot"></span>
+      <span id="statusText">Conectado (En Línea)</span>
+    </div>
+    <button class="sync-btn" id="syncBtn" onclick="syncOfflineData()">
+      <i class="fa-solid fa-rotate"></i> Sincronizar
+    </button>
+  </div>
+
+  <div class="container">
+    <!-- Section Title -->
+    <div class="section-header">
+      <div class="section-title">
+        <i class="fa-solid fa-chart-pie"></i>
+        <span>Dashboard Visualización Registros</span>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-card">
+      <div class="filter-grid">
+        <div class="filter-group">
+          <label><i class="fa-regular fa-calendar"></i> Fecha Exacta</label>
+          <input type="date" id="filterDate" class="filter-control" onchange="applyFilters()">
+        </div>
+        <div class="filter-group">
+          <label><i class="fa-solid fa-calendar-week"></i> Semana de Año</label>
+          <input type="week" id="filterWeek" class="filter-control" onchange="applyFilters()">
+        </div>
+        <div class="filter-group">
+          <label><i class="fa-solid fa-sitemap"></i> Área</label>
+          <select id="filterArea" class="filter-control" onchange="applyFilters()">
+            <option value="">Todas las Áreas</option>
+            <option value="Campo / Cosecha">Campo / Cosecha</option>
+            <option value="Empaque / Packing">Empaque / Packing</option>
+            <option value="Mantenimiento">Mantenimiento</option>
+            <option value="Sanidad Vegetal">Sanidad Vegetal</option>
+            <option value="Administración">Administración</option>
+            <option value="Riego">Riego</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI Summary Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card batallon-almuerzo">
+        <div class="kpi-header">
+          <span class="kpi-title">Almuerzo Batallón</span>
+          <div class="kpi-icon"><i class="fa-solid fa-utensils"></i></div>
+        </div>
+        <div class="kpi-value" id="kpiBatallonAlmuerzo">0</div>
+      </div>
+
+      <div class="kpi-card batallon-dieta">
+        <div class="kpi-header">
+          <span class="kpi-title">Dieta Batallón</span>
+          <div class="kpi-icon"><i class="fa-solid fa-leaf"></i></div>
+        </div>
+        <div class="kpi-value" id="kpiBatallonDieta">0</div>
+      </div>
+
+      <div class="kpi-card modulos-almuerzo">
+        <div class="kpi-header">
+          <span class="kpi-title">Almuerzo Módulos</span>
+          <div class="kpi-icon"><i class="fa-solid fa-box-open"></i></div>
+        </div>
+        <div class="kpi-value" id="kpiModulosAlmuerzo">0</div>
+      </div>
+
+      <div class="kpi-card modulos-dieta">
+        <div class="kpi-header">
+          <span class="kpi-title">Dieta Módulos</span>
+          <div class="kpi-icon"><i class="fa-solid fa-apple-whole"></i></div>
+        </div>
+        <div class="kpi-value" id="kpiModulosDieta">0</div>
+      </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="table-card">
+      <div class="table-wrapper">
+        <table id="dataTable">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Área</th>
+              <th>Alm. Mod.</th>
+              <th>Diet. Mod.</th>
+              <th>Alm. Bat.</th>
+              <th>Diet. Bat.</th>
+              <th>Estado Omisión</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr>
+              <td colspan="7" class="empty-state">Cargando registros...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Button (FAB) -->
+  <button class="fab-btn" onclick="openModal()" title="Registrar Pedido">
+    <i class="fa-solid fa-plus"></i>
+  </button>
+
+  <!-- Modal Register Form -->
+  <div class="modal-overlay" id="formModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span class="modal-title">Nuevo Registro de Comensales</span>
+        <button class="close-btn" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="recordForm" onsubmit="handleFormSubmit(event)">
+        <div class="form-group">
+          <label>Área de Trabajo</label>
+          <select id="inputArea" class="form-control" required>
+            <option value="">Seleccione Área</option>
+            <option value="Campo / Cosecha">Campo / Cosecha</option>
+            <option value="Empaque / Packing">Empaque / Packing</option>
+            <option value="Mantenimiento">Mantenimiento</option>
+            <option value="Sanidad Vegetal">Sanidad Vegetal</option>
+            <option value="Administración">Administración</option>
+            <option value="Riego">Riego</option>
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Almuerzos (Módulos)</label>
+            <input type="number" id="inputModAlmuerzo" class="form-control" min="0" value="0" required>
+          </div>
+          <div class="form-group">
+            <label>Dietas (Módulos)</label>
+            <input type="number" id="inputModDieta" class="form-control" min="0" value="0" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Almuerzos (Batallón)</label>
+            <input type="number" id="inputBatAlmuerzo" class="form-control" min="0" value="0" required>
+          </div>
+          <div class="form-group">
+            <label>Dietas (Batallón)</label>
+            <input type="number" id="inputBatDieta" class="form-control" min="0" value="0" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit" id="submitBtn">
+          Guardar Registro
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // URL Endpoint de Google Apps Script
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbz0yrfg95nUDAXbJl0uMKsRRMDfIUp-FFb1VNrluyMGf9WudEmE6_qPlemEUBqKWPuU/exec";
+
+    // Lista Maestra de Áreas para detección de omisión
+    const ALL_AREAS = [
+      "Campo / Cosecha",
+      "Empaque / Packing",
+      "Mantenimiento",
+      "Sanidad Vegetal",
+      "Administración",
+      "Riego"
+    ];
+
+    let allRecords = [];
+    let db = null;
+
+    // --- 1. Inicialización e IndexedDB ---
+    function initDB() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open("AgricolaHuarmeyDB", 1);
+        request.onupgradeneeded = (e) => {
+          const database = e.target.result;
+          if (!database.objectStoreNames.contains("records")) {
+            database.createObjectStore("records", { keyPath: "id", autoIncrement: true });
+          }
+          if (!database.objectStoreNames.contains("pending_sync")) {
+            database.createObjectStore("pending_sync", { keyPath: "id", autoIncrement: true });
+          }
+        };
+        request.onsuccess = (e) => {
+          db = e.target.result;
+          resolve(db);
+        };
+        request.onerror = (e) => reject(e);
+      });
+    }
+
+    // --- 2. Live Clock ---
+    function startClock() {
+      function update() {
+        const now = new Date();
+        document.getElementById('clockTime').textContent = now.toLocaleTimeString('es-PE');
+        document.getElementById('clockDate').textContent = now.toLocaleDateString('es-PE', {
+          day: '2-digit', month: '2-digit', year: 'numeric'
+        });
+      }
+      update();
+      setInterval(update, 1000);
+    }
+
+    // --- 3. Detección de Estado de Red ---
+    function updateOnlineStatus() {
+      const isOnline = navigator.onLine;
+      const statusDot = document.getElementById('statusDot');
+      const statusText = document.getElementById('statusText');
+
+      if (isOnline) {
+        statusDot.className = "status-dot online-dot";
+        statusText.textContent = "Conectado (En Línea)";
+        syncOfflineData();
+      } else {
+        statusDot.className = "status-dot offline-dot";
+        statusText.textContent = "Modo Offline (Campo)";
+      }
+    }
+
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+
+    // --- 4. Carga y Sincronización de Datos ---
+    async function fetchData() {
+      if (navigator.onLine) {
+        try {
+          const res = await fetch(GAS_URL + "?action=getData");
+          const json = await res.json();
+          if (json.status === "success") {
+            allRecords = json.data;
+            await cacheRecordsInIDB(allRecords);
+            renderDashboard();
+            return;
+          }
+        } catch (err) {
+          console.warn("Fallo fetch online, recurriendo a cache local", err);
+        }
+      }
+      // Si está offline o falló la red
+      allRecords = await getCachedRecordsFromIDB();
+      renderDashboard();
+    }
+
+    async function cacheRecordsInIDB(records) {
+      if (!db) return;
+      const tx = db.transaction("records", "readwrite");
+      const store = tx.objectStore("records");
+      store.clear();
+      records.forEach(r => store.add(r));
+    }
+
+    function getCachedRecordsFromIDB() {
+      return new Promise((resolve) => {
+        if (!db) return resolve([]);
+        const tx = db.transaction("records", "readonly");
+        const store = tx.objectStore("records");
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => resolve([]);
+      });
+    }
+
+    // --- 5. Formateadores ---
+    function formatDatePE(dateStr) {
+      if (!dateStr) return "";
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr; 
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
+
+    function formatNumber(num) {
+      return Math.round(Number(num) || 0).toLocaleString('en-US');
+    }
+
+    function getWeekNumber(d) {
+      d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+      var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+      var weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+      return weekNo;
+    }
+
+    // --- 6. Renderizado de Dashboard y Filtros ---
+    function applyFilters() {
+      renderDashboard();
+    }
+
+    function renderDashboard() {
+      const filterDateVal = document.getElementById('filterDate').value;
+      const filterWeekVal = document.getElementById('filterWeek').value;
+      const filterAreaVal = document.getElementById('filterArea').value;
+
+      let filtered = [...allRecords];
+
+      // Filtrar por fecha
+      if (filterDateVal) {
+        const targetFormatted = formatDatePE(filterDateVal);
+        filtered = filtered.filter(r => {
+          const rDateFormatted = formatDatePE(r["Marca temporal"]);
+          return rDateFormatted === targetFormatted;
+        });
+      }
+
+      // Filtrar por semana
+      if (filterWeekVal) {
+        const [year, week] = filterWeekVal.split('-W');
+        filtered = filtered.filter(r => {
+          const rDate = new Date(r["Marca temporal"]);
+          if (isNaN(rDate.getTime())) return false;
+          return rDate.getFullYear() == year && getWeekNumber(rDate) == week;
+        });
+      }
+
+      // Filtrar por área
+      if (filterAreaVal) {
+        filtered = filtered.filter(r => r["Seleccionar Área"] === filterAreaVal);
+      }
+
+      // Totales para KPI
+      let totalBatAlmuerzo = 0;
+      let totalBatDieta = 0;
+      let totalModAlmuerzo = 0;
+      let totalModDieta = 0;
+
+      filtered.forEach(r => {
+        totalModAlmuerzo += Number(r["Ingrese la Cantidad de Almuerzos(Modulos)"]) || 0;
+        totalModDieta += Number(r["Ingrese la Cantidad Dietas(Modulos)"]) || 0;
+        totalBatAlmuerzo += Number(r["Ingrese la Cantidad de Almuerzos(Batallón)"]) || 0;
+        totalBatDieta += Number(r["Ingrese la Cantidad Dietas(Batallón)"]) || 0;
+      });
+
+      document.getElementById('kpiBatallonAlmuerzo').textContent = formatNumber(totalBatAlmuerzo);
+      document.getElementById('kpiBatallonDieta').textContent = formatNumber(totalBatDieta);
+      document.getElementById('kpiModulosAlmuerzo').textContent = formatNumber(totalModAlmuerzo);
+      document.getElementById('kpiModulosDieta').textContent = formatNumber(totalModDieta);
+
+      // Render Tabla e Identificación de Omisiones
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = "";
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="empty-state">No hay datos registrados para los filtros seleccionados.</td></tr>`;
+        return;
+      }
+
+      // Detectar áreas representadas
+      const presentAreas = new Set(filtered.map(r => r["Seleccionar Área"]));
+
+      // Dibujar filas registradas
+      filtered.forEach(r => {
+        const modAlm = Number(r["Ingrese la Cantidad de Almuerzos(Modulos)"]) || 0;
+        const modDiet = Number(r["Ingrese la Cantidad Dietas(Modulos)"]) || 0;
+        const batAlm = Number(r["Ingrese la Cantidad de Almuerzos(Batallón)"]) || 0;
+        const batDiet = Number(r["Ingrese la Cantidad Dietas(Batallón)"]) || 0;
+
+        const isOmitted = (modAlm + modDiet + batAlm + batDiet) === 0;
+
+        const tr = document.createElement('tr');
+        if (isOmitted) tr.className = "omitted-row";
+
+        tr.innerHTML = `
+          <td>${formatDatePE(r["Marca temporal"])}</td>
+          <td><strong>${r["Seleccionar Área"] || 'Sin Área'}</strong></td>
+          <td>${formatNumber(modAlm)}</td>
+          <td>${formatNumber(modDiet)}</td>
+          <td>${formatNumber(batAlm)}</td>
+          <td>${formatNumber(batDiet)}</td>
+          <td>${isOmitted ? '<span class="badge-omitted">Sin Almuerzos</span>' : '<span style="color:var(--secondary-green); font-weight:600;"><i class="fa-solid fa-check"></i> OK</span>'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Si se filtró por una fecha exacta, mostrar alerta explícita para las áreas que OMITEERON registro por completo
+      if (filterDateVal) {
+        ALL_AREAS.forEach(area => {
+          if (!presentAreas.has(area)) {
+            const tr = document.createElement('tr');
+            tr.className = "omitted-row";
+            tr.innerHTML = `
+              <td>${formatDatePE(filterDateVal)}</td>
+              <td><strong>${area}</strong></td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td><span class="badge-omitted">OMISIÓN TOTAL</span></td>
+            `;
+            tbody.appendChild(tr);
+          }
+        });
+      }
+    }
+
+    // --- 7. Envío de Formulario & Offline-First ---
+    function openModal() { document.getElementById('formModal').classList.add('active'); }
+    function closeModal() { document.getElementById('formModal').classList.remove('active'); }
+
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<span class="loader-spinner"></span> Guardando...`;
+
+      const payload = {
+        "Marca temporal": new Date().toISOString(),
+        "Seleccionar Área": document.getElementById('inputArea').value,
+        "Ingrese la Cantidad de Almuerzos(Modulos)": document.getElementById('inputModAlmuerzo').value,
+        "Ingrese la Cantidad Dietas(Modulos)": document.getElementById('inputModDieta').value,
+        "Ingrese la Cantidad de Almuerzos(Batallón)": document.getElementById('inputBatAlmuerzo').value,
+        "Ingrese la Cantidad Dietas(Batallón)": document.getElementById('inputBatDieta').value
+      };
+
+      if (navigator.onLine) {
+        try {
+          await sendToGAS(payload);
+          alert("¡Registro guardado exitosamente en Google Sheets!");
+        } catch (err) {
+          await savePendingOffline(payload);
+          alert("Conexión inestable. Se guardó localmente y se sincronizará al recuperar señal.");
+        }
+      } else {
+        await savePendingOffline(payload);
+        alert("Modo Offline: Registro guardado en el dispositivo.");
+      }
+
+      // Agregar visualmente a la memoria local y refrescar UI
+      allRecords.unshift(payload);
+      renderDashboard();
+
+      // Resetear formulario
+      document.getElementById('recordForm').reset();
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Guardar Registro";
+      closeModal();
+    }
+
+    function sendToGAS(data) {
+      return fetch(GAS_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+    }
+
+    function savePendingOffline(data) {
+      return new Promise((resolve, reject) => {
+        if (!db) return reject();
+        const tx = db.transaction("pending_sync", "readwrite");
+        const store = tx.objectStore("pending_sync");
+        store.add(data);
+        tx.oncomplete = () => resolve();
+      });
+    }
+
+    async function syncOfflineData() {
+      if (!db || !navigator.onLine) return;
+      const tx = db.transaction("pending_sync", "readonly");
+      const store = tx.objectStore("pending_sync");
+      const req = store.getAll();
+
+      req.onsuccess = async () => {
+        const pending = req.result || [];
+        if (pending.length === 0) return;
+
+        const syncBtn = document.getElementById('syncBtn');
+        syncBtn.innerHTML = `<span class="loader-spinner"></span> Sincronizando...`;
+
+        for (const item of pending) {
+          try {
+            const id = item.id;
+            delete item.id;
+            await sendToGAS(item);
+
+            // Eliminar de pendientes
+            const delTx = db.transaction("pending_sync", "readwrite");
+            delTx.objectStore("pending_sync").delete(id);
+          } catch (e) {
+            console.error("Fallo reintentando envio offline", e);
+          }
+        }
+
+        syncBtn.innerHTML = `<i class="fa-solid fa-rotate"></i> Sincronizar`;
+        fetchData();
+      };
+    }
+
+    // --- 8. Inicialización al cargar PWA ---
+    window.addEventListener('load', async () => {
+      startClock();
+      await initDB();
+      updateOnlineStatus();
+      fetchData();
+
+      // Registro dinámico de Manifest y ServiceWorker PWA
+      registerPWA();
+    });
+
+    function registerPWA() {
+      // Manifest dinámico
+      const manifestObj = {
+        "name": "Agrícola Huarmey - Control Comensales",
+        "short_name": "AH Comendador",
+        "start_url": ".",
+        "display": "standalone",
+        "background_color": "#f4f6f8",
+        "theme_color": "#d32f2f",
+        "icons": [{
+          "src": "https://cdn-icons-png.flaticon.com/512/1046/1046784.png",
+          "sizes": "512x512",
+          "type": "image/png"
+        }]
+      };
+      const stringManifest = JSON.stringify(manifestObj);
+      const blobManifest = new Blob([stringManifest], {type: 'application/json'});
+      const manifestURL = URL.createObjectURL(blobManifest);
+      const linkElem = document.createElement('link');
+      linkElem.rel = 'manifest';
+      linkElem.href = manifestURL;
+      document.head.appendChild(linkElem);
+
+      // Service Worker Inline
+      if ('serviceWorker' in navigator) {
+        const swCode = `
+          const CACHE_NAME = 'ah-comensales-v1';
+          self.addEventListener('install', e => {
+            e.waitUntil(
+              caches.open(CACHE_NAME).then(cache => cache.addAll(['./']))
+            );
+          });
+          self.addEventListener('fetch', e => {
+            e.respondWith(
+              caches.match(e.request).then(res => res || fetch(e.request))
+            );
+          });
+        `;
+        const blobSW = new Blob([swCode], { type: 'text/javascript' });
+        const swURL = URL.createObjectURL(blobSW);
+        navigator.serviceWorker.register(swURL).catch(err => console.log('SW registration skipped', err));
+      }
+    }
+  </script>
+</body>
+</html>
