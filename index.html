@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -686,8 +686,8 @@
   </div>
 
   <script>
-    // URL Endpoint de Google Apps Script
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbzS9Dxrb9kxqVaEdKAnT4MWxK-8JMqCSVFyiKJWh9Lbp0QXYWno7_a3TjunSfx2AcwO/exec";
+    // URL Endpoint de Google Apps Script Web App
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbz0yrfg95nUDAXbJl0uMKsRRMDfIUp-FFb1VNrluyMGf9WudEmE6_qPlemEUBqKWPuU/exec";
 
     // Lista Maestra de Áreas para detección de omisión
     const ALL_AREAS = [
@@ -702,7 +702,7 @@
     let allRecords = [];
     let db = null;
 
-    // --- 1. Inicialización e IndexedDB ---
+    // --- 1. Inicialización de IndexedDB ---
     function initDB() {
       return new Promise((resolve, reject) => {
         const request = indexedDB.open("AgricolaHuarmeyDB", 1);
@@ -755,23 +755,35 @@
     window.addEventListener('online', updateOnlineStatus);
     window.addEventListener('offline', updateOnlineStatus);
 
-    // --- 4. Carga y Sincronización de Datos ---
+    // --- 4. Carga y Sincronización de Datos (Conexión Optimizada con GAS) ---
     async function fetchData() {
       if (navigator.onLine) {
         try {
-          const res = await fetch(GAS_URL + "?action=getData");
+          // Utiliza redirect: 'follow' para manejar la redirección estándar de Google Apps Script
+          const res = await fetch(GAS_URL + "?action=getData", {
+            method: "GET",
+            redirect: "follow"
+          });
+
+          if (!res.ok) {
+            throw new Error(`Respuesta HTTP no válida: ${res.status}`);
+          }
+
           const json = await res.json();
-          if (json.status === "success") {
+          if (json.status === "success" && Array.isArray(json.data)) {
             allRecords = json.data;
             await cacheRecordsInIDB(allRecords);
             renderDashboard();
             return;
+          } else if (json.status === "error") {
+            console.error("Error retornado por Google Apps Script:", json.message);
           }
         } catch (err) {
-          console.warn("Fallo fetch online, recurriendo a cache local", err);
+          console.warn("No se pudo conectar directamente a Google Sheets. Usando datos guardados localmente.", err);
         }
       }
-      // Si está offline o falló la red
+
+      // Si falla la red o la solicitud a Sheets, se utiliza IndexedDB
       allRecords = await getCachedRecordsFromIDB();
       renderDashboard();
     }
@@ -881,10 +893,8 @@
         return;
       }
 
-      // Detectar áreas representadas
       const presentAreas = new Set(filtered.map(r => r["Seleccionar Área"]));
 
-      // Dibujar filas registradas
       filtered.forEach(r => {
         const modAlm = Number(r["Ingrese la Cantidad de Almuerzos(Modulos)"]) || 0;
         const modDiet = Number(r["Ingrese la Cantidad Dietas(Modulos)"]) || 0;
@@ -908,7 +918,6 @@
         tbody.appendChild(tr);
       });
 
-      // Si se filtró por una fecha exacta, mostrar alerta explícita para las áreas que OMITEERON registro por completo
       if (filterDateVal) {
         ALL_AREAS.forEach(area => {
           if (!presentAreas.has(area)) {
@@ -929,7 +938,7 @@
       }
     }
 
-    // --- 7. Envío de Formulario & Offline-First ---
+    // --- 7. Envío de Formulario & Solución CORS para Google Apps Script ---
     function openModal() { document.getElementById('formModal').classList.add('active'); }
     function closeModal() { document.getElementById('formModal').classList.remove('active'); }
 
@@ -951,32 +960,34 @@
       if (navigator.onLine) {
         try {
           await sendToGAS(payload);
-          alert("¡Registro guardado exitosamente en Google Sheets!");
+          alert("¡Registro enviado a Google Sheets!");
         } catch (err) {
+          console.warn("Error enviando datos directamente, se guarda localmente:", err);
           await savePendingOffline(payload);
-          alert("Conexión inestable. Se guardó localmente y se sincronizará al recuperar señal.");
+          alert("Conexión inestable. Guardado en dispositivo. Se sincronizará automáticamente.");
         }
       } else {
         await savePendingOffline(payload);
-        alert("Modo Offline: Registro guardado en el dispositivo.");
+        alert("Modo Offline: Registro guardado en la memoria local del teléfono.");
       }
 
-      // Agregar visualmente a la memoria local y refrescar UI
       allRecords.unshift(payload);
       renderDashboard();
 
-      // Resetear formulario
       document.getElementById('recordForm').reset();
       submitBtn.disabled = false;
       submitBtn.textContent = "Guardar Registro";
       closeModal();
     }
 
+    // Modificación de cabecera a 'text/plain;charset=utf-8' para EVITAR que el navegador envíe un Preflight OPTIONS
     function sendToGAS(data) {
       return fetch(GAS_URL, {
         method: "POST",
         mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "text/plain;charset=utf-8" 
+        },
         body: JSON.stringify(data)
       });
     }
@@ -1010,11 +1021,10 @@
             delete item.id;
             await sendToGAS(item);
 
-            // Eliminar de pendientes
             const delTx = db.transaction("pending_sync", "readwrite");
             delTx.objectStore("pending_sync").delete(id);
           } catch (e) {
-            console.error("Fallo reintentando envio offline", e);
+            console.error("Fallo al reintentar envío offline:", e);
           }
         }
 
@@ -1023,19 +1033,16 @@
       };
     }
 
-    // --- 8. Inicialización al cargar PWA ---
+    // --- 8. Inicialización al Cargar ---
     window.addEventListener('load', async () => {
       startClock();
       await initDB();
       updateOnlineStatus();
       fetchData();
-
-      // Registro dinámico de Manifest y ServiceWorker PWA
       registerPWA();
     });
 
     function registerPWA() {
-      // Manifest dinámico
       const manifestObj = {
         "name": "Agrícola Huarmey - Control Comensales",
         "short_name": "AH Comendador",
@@ -1049,32 +1056,26 @@
           "type": "image/png"
         }]
       };
-      const stringManifest = JSON.stringify(manifestObj);
-      const blobManifest = new Blob([stringManifest], {type: 'application/json'});
+      const blobManifest = new Blob([JSON.stringify(manifestObj)], {type: 'application/json'});
       const manifestURL = URL.createObjectURL(blobManifest);
       const linkElem = document.createElement('link');
       linkElem.rel = 'manifest';
       linkElem.href = manifestURL;
       document.head.appendChild(linkElem);
 
-      // Service Worker Inline
       if ('serviceWorker' in navigator) {
         const swCode = `
-          const CACHE_NAME = 'ah-comensales-v1';
+          const CACHE_NAME = 'ah-comensales-v2';
           self.addEventListener('install', e => {
-            e.waitUntil(
-              caches.open(CACHE_NAME).then(cache => cache.addAll(['./']))
-            );
+            e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
           });
           self.addEventListener('fetch', e => {
-            e.respondWith(
-              caches.match(e.request).then(res => res || fetch(e.request))
-            );
+            e.respondWith(caches.match(e.request).then(res => res || fetch(e.request)));
           });
         `;
         const blobSW = new Blob([swCode], { type: 'text/javascript' });
         const swURL = URL.createObjectURL(blobSW);
-        navigator.serviceWorker.register(swURL).catch(err => console.log('SW registration skipped', err));
+        navigator.serviceWorker.register(swURL).catch(err => console.log('SW Registration Warning:', err));
       }
     }
   </script>
