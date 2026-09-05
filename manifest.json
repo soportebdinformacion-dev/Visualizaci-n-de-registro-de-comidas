@@ -1,21 +1,17 @@
 {
-"name": "Agrícola Huarmey - Control Comensales",
-"short_name": "AH Comendador",
-"start_url": "./index.html",
-"display": "standalone",
-"background_color": "#f4f6f8",
-"theme_color": "#d32f2f",
-"orientation": "portrait",
-"icons": [
-{
-"src": "https://cdn-icons-png.flaticon.com/512/1046/1046784.png",
-"sizes": "192x192",
-"type": "image/png"
-},
-{
-"src": "https://cdn-icons-png.flaticon.com/512/1046/1046784.png",
-"sizes": "512x512",
-"type": "image/png"
-}
-]
+  "name": "Agrícola Huarmey — Dashboard Comensales",
+  "short_name": "Huarmey Comensales",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#2E7D32",
+  "theme_color": "#2E7D32",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;utf8,
+AH
+",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
 }
