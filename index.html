@@ -1,1083 +1,1340 @@
 
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Agrícola Huarmey - Gestión de Comensales</title>
-  <meta name="theme-color" content="#d32f2f">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Comedores AH">
-  
-  <!-- FontAwesome & Google Fonts -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#2E7D32">
+    <meta name="description" content="Dashboard de Visualización de Comensales - Agrícola Huarmey">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Agrícola Huarmey — Dashboard Comensales</title>
 
-  <style>
-    :root {
-      --primary-red: #d32f2f;
-      --primary-red-hover: #b71c1c;
-      --primary-red-light: #ffebee;
-      --secondary-green: #2e7d32;
-      --secondary-green-light: #e8f5e9;
-      --warning-yellow: #f57f17;
-      --warning-light: #fffde7;
-      --neutral-bg: #f4f6f8;
-      --card-bg: #ffffff;
-      --text-dark: #2c3e50;
-      --text-muted: #7f8c8d;
-      --border-color: #e2e8f0;
-      --alert-red: #ffebee;
-      --alert-red-text: #c62828;
-    }
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Poppins', sans-serif;
-      -webkit-tap-highlight-color: transparent;
-    }
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            red: '#D32F2F',
+                            redDark: '#B71C1C',
+                            redLight: '#FFEBEE',
+                            green: '#2E7D32',
+                            greenDark: '#1B5E20',
+                            greenLight: '#E8F5E9',
+                            leaf: '#4CAF50',
+                            slate: '#374151',
+                            bg: '#F8FAFC'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
 
-    body {
-      background-color: var(--neutral-bg);
-      color: var(--text-dark);
-      padding-bottom: 30px;
-    }
-
-    /* Header */
-    header {
-      background: linear-gradient(135deg, var(--primary-red), #b71c1c);
-      color: white;
-      padding: 12px 16px;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .brand-container {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .logo-badge {
-      background: white;
-      color: var(--primary-red);
-      width: 38px;
-      height: 38px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: 1.2rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .brand-title {
-      font-size: 1.05rem;
-      font-weight: 700;
-      line-height: 1.2;
-    }
-
-    .brand-subtitle {
-      font-size: 0.7rem;
-      opacity: 0.85;
-      font-weight: 300;
-    }
-
-    .header-right {
-      text-align: right;
-    }
-
-    .clock-time {
-      font-size: 0.95rem;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-    }
-
-    .clock-date {
-      font-size: 0.68rem;
-      opacity: 0.9;
-    }
-
-    /* Status Bar */
-    .status-bar {
-      background-color: #fff;
-      padding: 8px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid var(--border-color);
-      font-size: 0.8rem;
-    }
-
-    .status-indicator {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-weight: 500;
-    }
-
-    .status-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      display: inline-block;
-    }
-
-    .online-dot { background-color: var(--secondary-green); box-shadow: 0 0 6px var(--secondary-green); }
-    .offline-dot { background-color: var(--primary-red); box-shadow: 0 0 6px var(--primary-red); }
-
-    .sync-btn {
-      background-color: var(--secondary-green-light);
-      color: var(--secondary-green);
-      border: 1px solid var(--secondary-green);
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      transition: all 0.2s;
-    }
-
-    .sync-btn:active {
-      transform: scale(0.95);
-    }
-
-    /* Main Container */
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 16px;
-    }
-
-    /* Section Title */
-    .section-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 16px;
-    }
-
-    .section-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--text-dark);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .section-title i {
-      color: var(--primary-red);
-    }
-
-    /* Filters Section */
-    .filter-card {
-      background: var(--card-bg);
-      border-radius: 12px;
-      padding: 14px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-      margin-bottom: 16px;
-      border: 1px solid var(--border-color);
-    }
-
-    .filter-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 10px;
-    }
-
-    .filter-group {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .filter-group label {
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--text-muted);
-    }
-
-    .filter-control {
-      padding: 8px 10px;
-      border-radius: 8px;
-      border: 1px solid var(--border-color);
-      font-size: 0.85rem;
-      outline: none;
-      background-color: #fff;
-    }
-
-    .filter-control:focus {
-      border-color: var(--primary-red);
-    }
-
-    /* KPI Cards Grid */
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    @media (min-width: 768px) {
-      .kpi-grid {
-        grid-template-columns: repeat(4, 1fr);
-      }
-    }
-
-    .kpi-card {
-      background: var(--card-bg);
-      border-radius: 12px;
-      padding: 14px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-      border: 1px solid var(--border-color);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .kpi-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 4px;
-      height: 100%;
-    }
-
-    .kpi-card.batallon-almuerzo::before { background-color: var(--primary-red); }
-    .kpi-card.batallon-dieta::before { background-color: var(--warning-yellow); }
-    .kpi-card.modulos-almuerzo::before { background-color: var(--secondary-green); }
-    .kpi-card.modulos-dieta::before { background-color: #0288d1; }
-
-    .kpi-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-
-    .kpi-title {
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-    }
-
-    .kpi-icon {
-      width: 30px;
-      height: 30px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.9rem;
-    }
-
-    .batallon-almuerzo .kpi-icon { background: var(--primary-red-light); color: var(--primary-red); }
-    .batallon-dieta .kpi-icon { background: var(--warning-light); color: var(--warning-yellow); }
-    .modulos-almuerzo .kpi-icon { background: var(--secondary-green-light); color: var(--secondary-green); }
-    .modulos-dieta .kpi-icon { background: #e1f5fe; color: #0288d1; }
-
-    .kpi-value {
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: var(--text-dark);
-    }
-
-    /* Table Container */
-    .table-card {
-      background: var(--card-bg);
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-      border: 1px solid var(--border-color);
-      overflow: hidden;
-    }
-
-    .table-wrapper {
-      overflow-x: auto;
-      max-height: 500px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-      font-size: 0.85rem;
-    }
-
-    th {
-      background-color: #f8fafc;
-      color: var(--text-muted);
-      font-weight: 600;
-      padding: 12px 14px;
-      border-bottom: 2px solid var(--border-color);
-      white-space: nowrap;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-
-    td {
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--border-color);
-      white-space: nowrap;
-    }
-
-    tr:last-child td {
-      border-bottom: none;
-    }
-
-    /* Omitting Area Alert Style */
-    tr.omitted-row {
-      background-color: var(--alert-red) !important;
-      color: var(--alert-red-text);
-    }
-
-    tr.omitted-row td {
-      border-color: #ffcdd2;
-    }
-
-    .badge-omitted {
-      background: #ef5350;
-      color: white;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 0.7rem;
-      font-weight: 600;
-      margin-left: 6px;
-    }
-
-    /* Action Form Floating / Mobile Friendly Modal */
-    .fab-btn {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background-color: var(--primary-red);
-      color: white;
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.4rem;
-      box-shadow: 0 4px 12px rgba(211, 47, 47, 0.4);
-      border: none;
-      cursor: pointer;
-      z-index: 900;
-    }
-
-    .modal-overlay {
-      position: fixed;
-      top:0; left:0; right:0; bottom:0;
-      background: rgba(0,0,0,0.5);
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      z-index: 1000;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-
-    @media (min-width: 600px) {
-      .modal-overlay {
-        align-items: center;
-      }
-    }
-
-    .modal-overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .modal-card {
-      background: white;
-      width: 100%;
-      max-width: 500px;
-      border-radius: 16px 16px 0 0;
-      padding: 20px;
-      max-height: 90vh;
-      overflow-y: auto;
-      transform: translateY(100%);
-      transition: transform 0.3s ease;
-    }
-
-    @media (min-width: 600px) {
-      .modal-card {
-        border-radius: 16px;
-        transform: translateY(20px);
-      }
-    }
-
-    .modal-overlay.active .modal-card {
-      transform: translateY(0);
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-
-    .modal-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-    }
-
-    .close-btn {
-      background: none;
-      border: none;
-      font-size: 1.2rem;
-      color: var(--text-muted);
-      cursor: pointer;
-    }
-
-    .form-group {
-      margin-bottom: 12px;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.8rem;
-      font-weight: 600;
-      margin-bottom: 4px;
-      color: var(--text-dark);
-    }
-
-    .form-control {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      font-size: 0.9rem;
-      outline: none;
-    }
-
-    .btn-submit {
-      width: 100%;
-      background-color: var(--primary-red);
-      color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      margin-top: 10px;
-      cursor: pointer;
-    }
-
-    /* Loader */
-    .loader-spinner {
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid var(--primary-red);
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      animation: spin 1s linear infinite;
-      display: inline-block;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 30px;
-      color: var(--text-muted);
-    }
-  </style>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #F1F5F9;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+        .pulse-live {
+            animation: pulse-glow 2s infinite;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.95); }
+        }
+        .card-hover {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+        }
+    </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased selection:bg-brand-green selection:text-white">
 
-  <!-- Header -->
-  <header>
-    <div class="brand-container">
-      <div class="logo-badge">AH</div>
-      <div>
-        <div class="brand-title">Agrícola Huarmey</div>
-        <div class="brand-subtitle">Control de Comensales</div>
-      </div>
-    </div>
-    <div class="header-right">
-      <div class="clock-time" id="clockTime">--:--:--</div>
-      <div class="clock-date" id="clockDate">--/--/----</div>
-    </div>
-  </header>
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                
+                <!-- Logo and Title Block -->
+                <div class="flex items-center space-x-3 sm:space-x-4">
+                    <div class="flex-shrink-0 flex items-center justify-center bg-white p-1 rounded-xl shadow-xs border border-slate-100">
+                        <!-- SVG Logo Recreation of Agrícola Huarmey -->
+                        <svg class="h-10 w-auto sm:h-12" viewBox="0 0 280 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Green Orbit Swooshes -->
+                            <path d="M 60 140 C 30 180, 100 220, 180 200 C 230 185, 250 140, 210 110" stroke="#2E7D32" stroke-width="12" stroke-linecap="round" fill="none"/>
+                            <path d="M 120 40 C 60 50, 20 100, 40 160 C 50 190, 80 210, 130 205" stroke="#2E7D32" stroke-width="10" stroke-linecap="round" fill="none"/>
+                            <!-- Top Leaf -->
+                            <path d="M 150 20 C 180 15, 210 35, 195 75 C 165 70, 145 45, 150 20 Z" fill="#2E7D32"/>
+                            <!-- Central Red Layered Apple/Fruit Tiers -->
+                            <path d="M 130 75 C 170 70, 205 90, 215 115 C 180 120, 140 105, 130 75 Z" fill="#D32F2F"/>
+                            <path d="M 110 120 C 160 110, 215 130, 225 160 C 175 165, 125 150, 110 120 Z" fill="#D32F2F"/>
+                            <path d="M 105 165 C 150 160, 200 180, 205 205 C 160 210, 115 195, 105 165 Z" fill="#D32F2F"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight leading-tight">
+                            Dashboard Visualización Registros
+                        </h1>
+                        <p class="text-xs text-brand-green font-semibold flex items-center gap-1.5 mt-0.5">
+                            <span class="inline-block w-2 h-2 rounded-full bg-brand-green"></span>
+                            Agrícola Huarmey — Sistema Comensales
+                        </p>
+                    </div>
+                </div>
 
-  <!-- Connection Status Bar -->
-  <div class="status-bar">
-    <div class="status-indicator">
-      <span class="status-dot online-dot" id="statusDot"></span>
-      <span id="statusText">Conectado (En Línea)</span>
-    </div>
-    <button class="sync-btn" id="syncBtn" onclick="syncOfflineData()">
-      <i class="fa-solid fa-rotate"></i> Sincronizar
-    </button>
-  </div>
+                <!-- Live Date, Time & Connection Status -->
+                <div class="flex flex-wrap items-center justify-between md:justify-end gap-3 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100 text-xs sm:text-sm">
+                    
+                    <!-- Date & Time Display -->
+                    <div class="bg-slate-100/80 px-3 py-1.5 rounded-lg border border-slate-200/80 font-mono text-slate-700 flex items-center space-x-2">
+                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span id="live-date-time" class="font-semibold">05/09/2026 --:--:--</span>
+                    </div>
 
-  <div class="container">
-    <!-- Section Title -->
-    <div class="section-header">
-      <div class="section-title">
-        <i class="fa-solid fa-chart-pie"></i>
-        <span>Dashboard Visualización Registros</span>
-      </div>
-    </div>
+                    <!-- Connection Status Pill -->
+                    <div id="connection-status-pill" class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold">
+                        <span id="status-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-500 pulse-live"></span>
+                        <span id="status-text">🟢 Google Sheets conectado</span>
+                    </div>
 
-    <!-- Filters -->
-    <div class="filter-card">
-      <div class="filter-grid">
-        <div class="filter-group">
-          <label><i class="fa-regular fa-calendar"></i> Fecha Exacta</label>
-          <input type="date" id="filterDate" class="filter-control" onchange="applyFilters()">
+                    <!-- Refresh Button & Mobile Menu Modal Trigger -->
+                    <div class="flex items-center space-x-1">
+                        <button id="btn-manual-sync" onclick="fetchDataFromAPI()" title="Sincronizar ahora" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors">
+                            <svg id="sync-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                        </button>
+                        <button onclick="toggleDeveloperModal()" title="Ver backend / Apps Script" class="px-2 py-1 rounded-lg bg-slate-800 text-white text-xs font-medium hover:bg-slate-700 transition-colors">
+                            ⚙️ Código API
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
         </div>
-        <div class="filter-group">
-          <label><i class="fa-solid fa-calendar-week"></i> Semana de Año</label>
-          <input type="week" id="filterWeek" class="filter-control" onchange="applyFilters()">
-        </div>
-        <div class="filter-group">
-          <label><i class="fa-solid fa-sitemap"></i> Área</label>
-          <select id="filterArea" class="filter-control" onchange="applyFilters()">
-            <option value="">Todas las Áreas</option>
-            <option value="Campo / Cosecha">Campo / Cosecha</option>
-            <option value="Empaque / Packing">Empaque / Packing</option>
-            <option value="Mantenimiento">Mantenimiento</option>
-            <option value="Sanidad Vegetal">Sanidad Vegetal</option>
-            <option value="Administración">Administración</option>
-            <option value="Riego">Riego</option>
-          </select>
-        </div>
-      </div>
-    </div>
+    </header>
 
-    <!-- KPI Summary Cards -->
-    <div class="kpi-grid">
-      <div class="kpi-card batallon-almuerzo">
-        <div class="kpi-header">
-          <span class="kpi-title">Almuerzo Batallón</span>
-          <div class="kpi-icon"><i class="fa-solid fa-utensils"></i></div>
-        </div>
-        <div class="kpi-value" id="kpiBatallonAlmuerzo">0</div>
-      </div>
-
-      <div class="kpi-card batallon-dieta">
-        <div class="kpi-header">
-          <span class="kpi-title">Dieta Batallón</span>
-          <div class="kpi-icon"><i class="fa-solid fa-leaf"></i></div>
-        </div>
-        <div class="kpi-value" id="kpiBatallonDieta">0</div>
-      </div>
-
-      <div class="kpi-card modulos-almuerzo">
-        <div class="kpi-header">
-          <span class="kpi-title">Almuerzo Módulos</span>
-          <div class="kpi-icon"><i class="fa-solid fa-box-open"></i></div>
-        </div>
-        <div class="kpi-value" id="kpiModulosAlmuerzo">0</div>
-      </div>
-
-      <div class="kpi-card modulos-dieta">
-        <div class="kpi-header">
-          <span class="kpi-title">Dieta Módulos</span>
-          <div class="kpi-icon"><i class="fa-solid fa-apple-whole"></i></div>
-        </div>
-        <div class="kpi-value" id="kpiModulosDieta">0</div>
-      </div>
-    </div>
-
-    <!-- Data Table -->
-    <div class="table-card">
-      <div class="table-wrapper">
-        <table id="dataTable">
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Área</th>
-              <th>Alm. Mod.</th>
-              <th>Diet. Mod.</th>
-              <th>Alm. Bat.</th>
-              <th>Diet. Bat.</th>
-              <th>Estado Omisión</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody">
-            <tr>
-              <td colspan="7" class="empty-state">Cargando registros...</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- Action Button (FAB) -->
-  <button class="fab-btn" onclick="openModal()" title="Registrar Pedido">
-    <i class="fa-solid fa-plus"></i>
-  </button>
-
-  <!-- Modal Register Form -->
-  <div class="modal-overlay" id="formModal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <span class="modal-title">Nuevo Registro de Comensales</span>
-        <button class="close-btn" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <form id="recordForm" onsubmit="handleFormSubmit(event)">
-        <div class="form-group">
-          <label>Área de Trabajo</label>
-          <select id="inputArea" class="form-control" required>
-            <option value="">Seleccione Área</option>
-            <option value="Campo / Cosecha">Campo / Cosecha</option>
-            <option value="Empaque / Packing">Empaque / Packing</option>
-            <option value="Mantenimiento">Mantenimiento</option>
-            <option value="Sanidad Vegetal">Sanidad Vegetal</option>
-            <option value="Administración">Administración</option>
-            <option value="Riego">Riego</option>
-          </select>
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        
+        <!-- Last Sync Info Sub-Bar -->
+        <div class="flex flex-wrap items-center justify-between text-xs text-slate-500 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-xs">
+            <div class="flex items-center space-x-2">
+                <span class="font-medium text-slate-700">Estado de Sincronización:</span>
+                <span id="last-update-badge" class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono">Última actualización: --/--/---- --:--</span>
+            </div>
+            <div id="cache-info" class="text-slate-400 italic">
+                Modo de lectura de datos activo
+            </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-          <div class="form-group">
-            <label>Almuerzos (Módulos)</label>
-            <input type="number" id="inputModAlmuerzo" class="form-control" min="0" value="0" required>
-          </div>
-          <div class="form-group">
-            <label>Dietas (Módulos)</label>
-            <input type="number" id="inputModDieta" class="form-control" min="0" value="0" required>
-          </div>
-        </div>
+        <!-- Interactive Filters Toolbar -->
+        <section class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
+                <h2 class="text-sm font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-brand-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                    </svg>
+                    Filtros de Búsqueda
+                </h2>
+                <button onclick="resetFilters()" class="text-xs font-semibold text-brand-red hover:text-brand-redDark transition-colors flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                    Limpiar Filtros (Todos)
+                </button>
+            </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-          <div class="form-group">
-            <label>Almuerzos (Batallón)</label>
-            <input type="number" id="inputBatAlmuerzo" class="form-control" min="0" value="0" required>
-          </div>
-          <div class="form-group">
-            <label>Dietas (Batallón)</label>
-            <input type="number" id="inputBatDieta" class="form-control" min="0" value="0" required>
-          </div>
-        </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                
+                <!-- Date Filter -->
+                <div>
+                    <label for="filter-date" class="block text-xs font-semibold text-slate-600 mb-1">FECHA</label>
+                    <select id="filter-date" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:ring-2 focus:ring-brand-green focus:border-brand-green outline-none transition-all">
+                        <option value="ALL">Todos los registros</option>
+                    </select>
+                </div>
 
-        <button type="submit" class="btn-submit" id="submitBtn">
-          Guardar Registro
-        </button>
-      </form>
-    </div>
-  </div>
+                <!-- Week Filter -->
+                <div>
+                    <label for="filter-week" class="block text-xs font-semibold text-slate-600 mb-1">SEMANA</label>
+                    <select id="filter-week" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:ring-2 focus:ring-brand-green focus:border-brand-green outline-none transition-all">
+                        <option value="ALL">Todas las semanas</option>
+                    </select>
+                </div>
 
-  <script>
-    // URL Endpoint de Google Apps Script Web App
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbz0yrfg95nUDAXbJl0uMKsRRMDfIUp-FFb1VNrluyMGf9WudEmE6_qPlemEUBqKWPuU/exec";
+                <!-- Area Filter -->
+                <div>
+                    <label for="filter-area" class="block text-xs font-semibold text-slate-600 mb-1">ÁREA</label>
+                    <select id="filter-area" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:ring-2 focus:ring-brand-green focus:border-brand-green outline-none transition-all">
+                        <option value="ALL">Todas las áreas</option>
+                    </select>
+                </div>
 
-    // Lista Maestra de Áreas para detección de omisión
-    const ALL_AREAS = [
-      "Campo / Cosecha",
-      "Empaque / Packing",
-      "Mantenimiento",
-      "Sanidad Vegetal",
-      "Administración",
-      "Riego"
-    ];
+            </div>
+        </section>
 
-    let allRecords = [];
-    let db = null;
+        <!-- KPI Cards Grid (4 Cards) -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            <!-- KPI 1: TOTAL ALMUERZO BATALLONES -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm card-hover relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-2 h-full bg-brand-green"></div>
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wide">BATALLÓN</span>
+                    <div class="p-2 rounded-xl bg-emerald-50 text-brand-green">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-500 font-medium">TOTAL ALMUERZO BATALLONES</p>
+                <div class="mt-2 flex items-baseline">
+                    <span id="kpi-almuerzo-batallon" class="text-3xl font-extrabold text-slate-900 tracking-tight">0</span>
+                    <span class="ml-2 text-xs text-slate-400 font-normal">porciones</span>
+                </div>
+            </div>
 
-    // --- 1. Inicialización de IndexedDB ---
-    function initDB() {
-      return new Promise((resolve, reject) => {
-        const request = indexedDB.open("AgricolaHuarmeyDB", 1);
-        request.onupgradeneeded = (e) => {
-          const database = e.target.result;
-          if (!database.objectStoreNames.contains("records")) {
-            database.createObjectStore("records", { keyPath: "id", autoIncrement: true });
-          }
-          if (!database.objectStoreNames.contains("pending_sync")) {
-            database.createObjectStore("pending_sync", { keyPath: "id", autoIncrement: true });
-          }
-        };
-        request.onsuccess = (e) => {
-          db = e.target.result;
-          resolve(db);
-        };
-        request.onerror = (e) => reject(e);
-      });
+            <!-- KPI 2: TOTAL DIETA BATALLONES -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm card-hover relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-2 h-full bg-emerald-400"></div>
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wide">BATALLÓN</span>
+                    <div class="p-2 rounded-xl bg-teal-50 text-teal-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-500 font-medium">TOTAL DIETA BATALLONES</p>
+                <div class="mt-2 flex items-baseline">
+                    <span id="kpi-dieta-batallon" class="text-3xl font-extrabold text-slate-900 tracking-tight">0</span>
+                    <span class="ml-2 text-xs text-slate-400 font-normal">porciones</span>
+                </div>
+            </div>
+
+            <!-- KPI 3: TOTAL ALMUERZO MÓDULOS -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm card-hover relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-2 h-full bg-brand-red"></div>
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wide">MÓDULOS</span>
+                    <div class="p-2 rounded-xl bg-rose-50 text-brand-red">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h4m-4 0V11m0 0h4" />
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-500 font-medium">TOTAL ALMUERZO MÓDULOS</p>
+                <div class="mt-2 flex items-baseline">
+                    <span id="kpi-almuerzo-modulos" class="text-3xl font-extrabold text-slate-900 tracking-tight">0</span>
+                    <span class="ml-2 text-xs text-slate-400 font-normal">porciones</span>
+                </div>
+            </div>
+
+            <!-- KPI 4: TOTAL DIETA MÓDULOS -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm card-hover relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-2 h-full bg-amber-500"></div>
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wide">MÓDULOS</span>
+                    <div class="p-2 rounded-xl bg-amber-50 text-amber-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-500 font-medium">TOTAL DIETA MÓDULOS</p>
+                <div class="mt-2 flex items-baseline">
+                    <span id="kpi-dieta-modulos" class="text-3xl font-extrabold text-slate-900 tracking-tight">0</span>
+                    <span class="ml-2 text-xs text-slate-400 font-normal">porciones</span>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Alerts Banner Section -->
+        <section id="alerts-section" class="transition-all duration-300">
+            <!-- Dynamic Alert Container Populated JS -->
+        </section>
+
+        <!-- Visual de Resumen por Fecha -->
+        <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div>
+                    <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-brand-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Resumen Consolidado por Fecha
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Agrupación diaria de requerimientos de comensales (Formato DD/MM/YYYY)</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="toggleSummaryView('table')" id="btn-view-table" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-brand-green text-white shadow-xs">
+                        Tabla Matriz
+                    </button>
+                    <button onclick="toggleSummaryView('chart')" id="btn-view-chart" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200">
+                        Gráfico Comparativo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Table View Matrix -->
+            <div id="summary-table-container" class="p-4 overflow-x-auto custom-scrollbar">
+                <table class="w-full text-sm text-left border-collapse min-w-[600px]">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-600 font-bold text-xs uppercase border-b border-slate-200">
+                            <th class="py-3 px-4">Fecha</th>
+                            <th class="py-3 px-4 text-right">Almuerzo Módulos</th>
+                            <th class="py-3 px-4 text-right">Dieta Módulos</th>
+                            <th class="py-3 px-4 text-right">Almuerzo Batallón</th>
+                            <th class="py-3 px-4 text-right">Dieta Batallón</th>
+                            <th class="py-3 px-4 text-right bg-slate-100/80">Total Día</th>
+                        </tr>
+                    </thead>
+                    <tbody id="summary-table-body" class="divide-y divide-slate-100 text-slate-700">
+                        <!-- Dynamic rows -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Chart View Container -->
+            <div id="summary-chart-container" class="p-4 hidden">
+                <div class="h-64 sm:h-80 w-full relative">
+                    <canvas id="summaryChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tabla Detallada -->
+        <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div>
+                    <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-brand-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Tabla Detallada de Registros
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Listado completo de solicitudes consultadas desde Google Sheets</p>
+                </div>
+                
+                <!-- Table Search & Pagination Info -->
+                <div class="flex items-center space-x-3">
+                    <input type="text" id="table-search" onkeyup="filterTableBySearch()" placeholder="Buscar en tabla..." class="bg-slate-50 border border-slate-300 text-xs rounded-xl px-3 py-2 focus:ring-2 focus:ring-brand-green outline-none w-48 sm:w-64">
+                    <span id="records-count-badge" class="text-xs font-semibold px-2.5 py-1 bg-slate-100 rounded-lg text-slate-600">0 registros</span>
+                </div>
+            </div>
+
+            <!-- Responsive Table Wrapper -->
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-xs sm:text-sm text-left border-collapse min-w-[700px]">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider border-b border-slate-200">
+                            <th class="py-3.5 px-4">Fecha</th>
+                            <th class="py-3.5 px-4">Área</th>
+                            <th class="py-3.5 px-4 text-right">Almuerzo Módulos</th>
+                            <th class="py-3.5 px-4 text-right">Dieta Módulos</th>
+                            <th class="py-3.5 px-4 text-right">Almuerzo Batallón</th>
+                            <th class="py-3.5 px-4 text-right">Dieta Batallón</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailed-table-body" class="divide-y divide-slate-100 text-slate-700 font-medium">
+                        <!-- Dynamic Detailed Rows -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State Container -->
+            <div id="table-empty-state" class="hidden p-8 text-center">
+                <svg class="w-12 h-12 mx-auto text-slate-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                </svg>
+                <p class="text-slate-500 font-semibold text-sm">No existen registros para los filtros seleccionados.</p>
+                <p class="text-xs text-slate-400 mt-1">Intente cambiar la fecha, semana o área en los filtros superiores.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Developer Drawer / Modal to view Apps Script and PWA files -->
+    <div id="dev-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-slate-200">
+            <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
+                <div>
+                    <h3 class="font-bold text-base flex items-center gap-2">
+                        <span class="text-emerald-400">⚡</span> Código de Integración Backend & PWA
+                    </h3>
+                    <p class="text-xs text-slate-400">Archivos para Google Apps Script, Manifest y Service Worker</p>
+                </div>
+                <button onclick="toggleDeveloperModal()" class="text-slate-400 hover:text-white p-1">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex border-b border-slate-200 bg-slate-100 text-xs font-semibold text-slate-600">
+                <button onclick="showDevTab('gs')" id="tab-btn-gs" class="px-4 py-2.5 border-b-2 border-brand-green text-brand-green bg-white">codigo.gs (Apps Script)</button>
+                <button onclick="showDevTab('manifest')" id="tab-btn-manifest" class="px-4 py-2.5 border-b-2 border-transparent hover:text-slate-900">manifest.json</button>
+                <button onclick="showDevTab('sw')" id="tab-btn-sw" class="px-4 py-2.5 border-b-2 border-transparent hover:text-slate-900">service-worker.js</button>
+            </div>
+
+            <!-- Code Panels -->
+            <div class="p-4 flex-grow overflow-y-auto custom-scrollbar bg-slate-950 font-mono text-xs text-emerald-400">
+                <pre id="code-content-gs" class="whitespace-pre-wrap leading-relaxed">
+/**
+ * GOOGLE APPS SCRIPT API - AGRICOLA HUARMEY
+ * Backend de solo lectura para BDComensales
+ */
+function doGet(e) {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName("BDComensales");
+    if (!sheet) {
+      sheet = ss.getSheets()[0];
     }
-
-    // --- 2. Live Clock ---
-    function startClock() {
-      function update() {
-        const now = new Date();
-        document.getElementById('clockTime').textContent = now.toLocaleTimeString('es-PE');
-        document.getElementById('clockDate').textContent = now.toLocaleDateString('es-PE', {
-          day: '2-digit', month: '2-digit', year: 'numeric'
-        });
-      }
-      update();
-      setInterval(update, 1000);
+    
+    var data = sheet.getDataRange().getValues();
+    if (data.length <= 1) {
+      return responseJSON({ status: "success", data: [] });
     }
-
-    // --- 3. Detección de Estado de Red ---
-    function updateOnlineStatus() {
-      const isOnline = navigator.onLine;
-      const statusDot = document.getElementById('statusDot');
-      const statusText = document.getElementById('statusText');
-
-      if (isOnline) {
-        statusDot.className = "status-dot online-dot";
-        statusText.textContent = "Conectado (En Línea)";
-        syncOfflineData();
-      } else {
-        statusDot.className = "status-dot offline-dot";
-        statusText.textContent = "Modo Offline (Campo)";
-      }
-    }
-
-    window.addEventListener('online', updateOnlineStatus);
-    window.addEventListener('offline', updateOnlineStatus);
-
-    // --- 4. Carga y Sincronización de Datos (Conexión Optimizada con GAS) ---
-    async function fetchData() {
-      if (navigator.onLine) {
-        try {
-          // Utiliza redirect: 'follow' para manejar la redirección estándar de Google Apps Script
-          const res = await fetch(GAS_URL + "?action=getData", {
-            method: "GET",
-            redirect: "follow"
-          });
-
-          if (!res.ok) {
-            throw new Error(`Respuesta HTTP no válida: ${res.status}`);
-          }
-
-          const json = await res.json();
-          if (json.status === "success" && Array.isArray(json.data)) {
-            allRecords = json.data;
-            await cacheRecordsInIDB(allRecords);
-            renderDashboard();
-            return;
-          } else if (json.status === "error") {
-            console.error("Error retornado por Google Apps Script:", json.message);
-          }
-        } catch (err) {
-          console.warn("No se pudo conectar directamente a Google Sheets. Usando datos guardados localmente.", err);
+    
+    var headers = data[0];
+    var result = [];
+    
+    for (var i = 1; i < data.length; i++) {
+      var row = data[i];
+      if (!row[0]) continue;
+      
+      var obj = {};
+      for (var j = 0; j < headers.length; j++) {
+        var headerName = String(headers[j]).trim();
+        var val = row[j];
+        if (val instanceof Date) {
+          val = Utilities.formatDate(val, ss.getSpreadsheetTimeZone(), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         }
+        obj[headerName] = val;
       }
-
-      // Si falla la red o la solicitud a Sheets, se utiliza IndexedDB
-      allRecords = await getCachedRecordsFromIDB();
-      renderDashboard();
+      result.push(obj);
     }
-
-    async function cacheRecordsInIDB(records) {
-      if (!db) return;
-      const tx = db.transaction("records", "readwrite");
-      const store = tx.objectStore("records");
-      store.clear();
-      records.forEach(r => store.add(r));
-    }
-
-    function getCachedRecordsFromIDB() {
-      return new Promise((resolve) => {
-        if (!db) return resolve([]);
-        const tx = db.transaction("records", "readonly");
-        const store = tx.objectStore("records");
-        const req = store.getAll();
-        req.onsuccess = () => resolve(req.result || []);
-        req.onerror = () => resolve([]);
-      });
-    }
-
-    // --- 5. Formateadores ---
-    function formatDatePE(dateStr) {
-      if (!dateStr) return "";
-      const d = new Date(dateStr);
-      if (isNaN(d.getTime())) return dateStr; 
-      const day = String(d.getDate()).padStart(2, '0');
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const year = d.getFullYear();
-      return `${day}/${month}/${year}`;
-    }
-
-    function formatNumber(num) {
-      return Math.round(Number(num) || 0).toLocaleString('en-US');
-    }
-
-    function getWeekNumber(d) {
-      d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-      d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-      var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-      var weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-      return weekNo;
-    }
-
-    // --- 6. Renderizado de Dashboard y Filtros ---
-    function applyFilters() {
-      renderDashboard();
-    }
-
-    function renderDashboard() {
-      const filterDateVal = document.getElementById('filterDate').value;
-      const filterWeekVal = document.getElementById('filterWeek').value;
-      const filterAreaVal = document.getElementById('filterArea').value;
-
-      let filtered = [...allRecords];
-
-      // Filtrar por fecha
-      if (filterDateVal) {
-        const targetFormatted = formatDatePE(filterDateVal);
-        filtered = filtered.filter(r => {
-          const rDateFormatted = formatDatePE(r["Marca temporal"]);
-          return rDateFormatted === targetFormatted;
-        });
-      }
-
-      // Filtrar por semana
-      if (filterWeekVal) {
-        const [year, week] = filterWeekVal.split('-W');
-        filtered = filtered.filter(r => {
-          const rDate = new Date(r["Marca temporal"]);
-          if (isNaN(rDate.getTime())) return false;
-          return rDate.getFullYear() == year && getWeekNumber(rDate) == week;
-        });
-      }
-
-      // Filtrar por área
-      if (filterAreaVal) {
-        filtered = filtered.filter(r => r["Seleccionar Área"] === filterAreaVal);
-      }
-
-      // Totales para KPI
-      let totalBatAlmuerzo = 0;
-      let totalBatDieta = 0;
-      let totalModAlmuerzo = 0;
-      let totalModDieta = 0;
-
-      filtered.forEach(r => {
-        totalModAlmuerzo += Number(r["Ingrese la Cantidad de Almuerzos(Modulos)"]) || 0;
-        totalModDieta += Number(r["Ingrese la Cantidad Dietas(Modulos)"]) || 0;
-        totalBatAlmuerzo += Number(r["Ingrese la Cantidad de Almuerzos(Batallón)"]) || 0;
-        totalBatDieta += Number(r["Ingrese la Cantidad Dietas(Batallón)"]) || 0;
-      });
-
-      document.getElementById('kpiBatallonAlmuerzo').textContent = formatNumber(totalBatAlmuerzo);
-      document.getElementById('kpiBatallonDieta').textContent = formatNumber(totalBatDieta);
-      document.getElementById('kpiModulosAlmuerzo').textContent = formatNumber(totalModAlmuerzo);
-      document.getElementById('kpiModulosDieta').textContent = formatNumber(totalModDieta);
-
-      // Render Tabla e Identificación de Omisiones
-      const tbody = document.getElementById('tableBody');
-      tbody.innerHTML = "";
-
-      if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="empty-state">No hay datos registrados para los filtros seleccionados.</td></tr>`;
-        return;
-      }
-
-      const presentAreas = new Set(filtered.map(r => r["Seleccionar Área"]));
-
-      filtered.forEach(r => {
-        const modAlm = Number(r["Ingrese la Cantidad de Almuerzos(Modulos)"]) || 0;
-        const modDiet = Number(r["Ingrese la Cantidad Dietas(Modulos)"]) || 0;
-        const batAlm = Number(r["Ingrese la Cantidad de Almuerzos(Batallón)"]) || 0;
-        const batDiet = Number(r["Ingrese la Cantidad Dietas(Batallón)"]) || 0;
-
-        const isOmitted = (modAlm + modDiet + batAlm + batDiet) === 0;
-
-        const tr = document.createElement('tr');
-        if (isOmitted) tr.className = "omitted-row";
-
-        tr.innerHTML = `
-          <td>${formatDatePE(r["Marca temporal"])}</td>
-          <td><strong>${r["Seleccionar Área"] || 'Sin Área'}</strong></td>
-          <td>${formatNumber(modAlm)}</td>
-          <td>${formatNumber(modDiet)}</td>
-          <td>${formatNumber(batAlm)}</td>
-          <td>${formatNumber(batDiet)}</td>
-          <td>${isOmitted ? '<span class="badge-omitted">Sin Almuerzos</span>' : '<span style="color:var(--secondary-green); font-weight:600;"><i class="fa-solid fa-check"></i> OK</span>'}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      if (filterDateVal) {
-        ALL_AREAS.forEach(area => {
-          if (!presentAreas.has(area)) {
-            const tr = document.createElement('tr');
-            tr.className = "omitted-row";
-            tr.innerHTML = `
-              <td>${formatDatePE(filterDateVal)}</td>
-              <td><strong>${area}</strong></td>
-              <td>0</td>
-              <td>0</td>
-              <td>0</td>
-              <td>0</td>
-              <td><span class="badge-omitted">OMISIÓN TOTAL</span></td>
-            `;
-            tbody.appendChild(tr);
-          }
-        });
-      }
-    }
-
-    // --- 7. Envío de Formulario & Solución CORS para Google Apps Script ---
-    function openModal() { document.getElementById('formModal').classList.add('active'); }
-    function closeModal() { document.getElementById('formModal').classList.remove('active'); }
-
-    async function handleFormSubmit(e) {
-      e.preventDefault();
-      const submitBtn = document.getElementById('submitBtn');
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = `<span class="loader-spinner"></span> Guardando...`;
-
-      const payload = {
-        "Marca temporal": new Date().toISOString(),
-        "Seleccionar Área": document.getElementById('inputArea').value,
-        "Ingrese la Cantidad de Almuerzos(Modulos)": document.getElementById('inputModAlmuerzo').value,
-        "Ingrese la Cantidad Dietas(Modulos)": document.getElementById('inputModDieta').value,
-        "Ingrese la Cantidad de Almuerzos(Batallón)": document.getElementById('inputBatAlmuerzo').value,
-        "Ingrese la Cantidad Dietas(Batallón)": document.getElementById('inputBatDieta').value
-      };
-
-      if (navigator.onLine) {
-        try {
-          await sendToGAS(payload);
-          alert("¡Registro enviado a Google Sheets!");
-        } catch (err) {
-          console.warn("Error enviando datos directamente, se guarda localmente:", err);
-          await savePendingOffline(payload);
-          alert("Conexión inestable. Guardado en dispositivo. Se sincronizará automáticamente.");
-        }
-      } else {
-        await savePendingOffline(payload);
-        alert("Modo Offline: Registro guardado en la memoria local del teléfono.");
-      }
-
-      allRecords.unshift(payload);
-      renderDashboard();
-
-      document.getElementById('recordForm').reset();
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Guardar Registro";
-      closeModal();
-    }
-
-    // Modificación de cabecera a 'text/plain;charset=utf-8' para EVITAR que el navegador envíe un Preflight OPTIONS
-    function sendToGAS(data) {
-      return fetch(GAS_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { 
-          "Content-Type": "text/plain;charset=utf-8" 
-        },
-        body: JSON.stringify(data)
-      });
-    }
-
-    function savePendingOffline(data) {
-      return new Promise((resolve, reject) => {
-        if (!db) return reject();
-        const tx = db.transaction("pending_sync", "readwrite");
-        const store = tx.objectStore("pending_sync");
-        store.add(data);
-        tx.oncomplete = () => resolve();
-      });
-    }
-
-    async function syncOfflineData() {
-      if (!db || !navigator.onLine) return;
-      const tx = db.transaction("pending_sync", "readonly");
-      const store = tx.objectStore("pending_sync");
-      const req = store.getAll();
-
-      req.onsuccess = async () => {
-        const pending = req.result || [];
-        if (pending.length === 0) return;
-
-        const syncBtn = document.getElementById('syncBtn');
-        syncBtn.innerHTML = `<span class="loader-spinner"></span> Sincronizando...`;
-
-        for (const item of pending) {
-          try {
-            const id = item.id;
-            delete item.id;
-            await sendToGAS(item);
-
-            const delTx = db.transaction("pending_sync", "readwrite");
-            delTx.objectStore("pending_sync").delete(id);
-          } catch (e) {
-            console.error("Fallo al reintentar envío offline:", e);
-          }
-        }
-
-        syncBtn.innerHTML = `<i class="fa-solid fa-rotate"></i> Sincronizar`;
-        fetchData();
-      };
-    }
-
-    // --- 8. Inicialización al Cargar ---
-    window.addEventListener('load', async () => {
-      startClock();
-      await initDB();
-      updateOnlineStatus();
-      fetchData();
-      registerPWA();
+    
+    return responseJSON({
+      status: "success",
+      count: result.length,
+      updatedAt: new Date().toISOString(),
+      data: result
     });
+  } catch (err) {
+    return responseJSON({ status: "error", message: err.toString() });
+  }
+}
 
-    function registerPWA() {
-      const manifestObj = {
-        "name": "Agrícola Huarmey - Control Comensales",
-        "short_name": "AH Comendador",
-        "start_url": ".",
-        "display": "standalone",
-        "background_color": "#f4f6f8",
-        "theme_color": "#d32f2f",
-        "icons": [{
-          "src": "https://cdn-icons-png.flaticon.com/512/1046/1046784.png",
-          "sizes": "512x512",
-          "type": "image/png"
-        }]
-      };
-      const blobManifest = new Blob([JSON.stringify(manifestObj)], {type: 'application/json'});
-      const manifestURL = URL.createObjectURL(blobManifest);
-      const linkElem = document.createElement('link');
-      linkElem.rel = 'manifest';
-      linkElem.href = manifestURL;
-      document.head.appendChild(linkElem);
+function responseJSON(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+                </pre>
 
-      if ('serviceWorker' in navigator) {
-        const swCode = `
-          const CACHE_NAME = 'ah-comensales-v2';
-          self.addEventListener('install', e => {
-            e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
-          });
-          self.addEventListener('fetch', e => {
-            e.respondWith(caches.match(e.request).then(res => res || fetch(e.request)));
-          });
-        `;
-        const blobSW = new Blob([swCode], { type: 'text/javascript' });
-        const swURL = URL.createObjectURL(blobSW);
-        navigator.serviceWorker.register(swURL).catch(err => console.log('SW Registration Warning:', err));
-      }
+                <pre id="code-content-manifest" class="whitespace-pre-wrap leading-relaxed hidden">
+{
+  "name": "Agrícola Huarmey — Dashboard Comensales",
+  "short_name": "Huarmey Comensales",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#2E7D32",
+  "theme_color": "#2E7D32",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%232E7D32'/><text x='50' y='60' font-size='40' text-anchor='middle' fill='white'>AH</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
     }
-  </script>
+  ]
+}
+                </pre>
+
+                <pre id="code-content-sw" class="whitespace-pre-wrap leading-relaxed hidden">
+/* Service Worker PWA Agrícola Huarmey */
+const CACHE_NAME = 'huarmey-comensales-v1';
+const ASSETS = ['./', './index.html'];
+
+self.addEventListener('install', (evt) => {
+  evt.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+  );
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (evt) => {
+  evt.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+      );
+    })
+  );
+  self.clients.claim();
+});
+
+self.addEventListener('fetch', (evt) => {
+  evt.respondWith(
+    caches.match(evt.request).then((res) => res || fetch(evt.request))
+  );
+});
+                </pre>
+            </div>
+
+            <div class="p-3 bg-slate-100 border-t border-slate-200 text-right">
+                <button onclick="toggleDeveloperModal()" class="px-4 py-2 bg-slate-800 text-white font-semibold text-xs rounded-xl hover:bg-slate-700">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-auto py-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+            <div class="flex items-center space-x-2">
+                <span class="font-bold text-slate-700">Agrícola Huarmey</span>
+                <span>•</span>
+                <span>Sistema de Control y Visualización de Comensales</span>
+            </div>
+            <div>
+                PWA Offline-First • Solo Lectura • 2026
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        /**
+         * GLOBAL APP CONFIGURATION AND CONSTANTS
+         */
+        const CONFIG = {
+            API_ENDPOINT: 'https://script.google.com/macros/s/AKfycbyATjbFT9NW9aC2r54TTH3GJKHrLy3HkEqYyxhxqjaT5ZYvo6602wHX-1sbtjqlwgZX/exec',
+            DB_NAME: 'AgricolaHuarmeyDB',
+            DB_STORE: 'bd_comensales_store',
+            DB_VERSION: 1,
+            COL_KEYS: {
+                TIMESTAMP: 'Marca temporal',
+                AREA: 'Seleccionar Área:',
+                ALMUERZO_MODULOS: 'Ingrese la Cantidad de Almuerzos(Modulos)',
+                DIETA_MODULOS: 'Ingrese la Cantidad Dietas(Modulos)',
+                ALMUERZO_BATALLON: 'Ingrese la Cantidad de Almuerzos(Batallón)',
+                DIETA_BATALLON: 'Ingrese la Cantidad Dietas(Batallón)'
+            }
+        };
+
+        // Application State
+        let rawData = [];
+        let filteredData = [];
+        let summaryChartInstance = null;
+        let dbInstance = null;
+        let isOnlineState = navigator.onLine;
+
+        /**
+         * INDEXEDDB INITIALIZATION
+         */
+        function initIndexedDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(CONFIG.DB_NAME, CONFIG.DB_VERSION);
+                request.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(CONFIG.DB_STORE)) {
+                        db.createObjectStore(CONFIG.DB_STORE, { keyPath: 'id' });
+                    }
+                };
+                request.onsuccess = (e) => {
+                    dbInstance = e.target.result;
+                    resolve(dbInstance);
+                };
+                request.onerror = (e) => {
+                    console.error("IndexedDB error:", e);
+                    resolve(null);
+                };
+            });
+        }
+
+        async function saveToIndexedDB(data, timestampStr) {
+            if (!dbInstance) return;
+            try {
+                const tx = dbInstance.transaction(CONFIG.DB_STORE, 'readwrite');
+                const store = tx.objectStore(CONFIG.DB_STORE);
+                store.put({
+                    id: 'cached_comensales_data',
+                    payload: data,
+                    updatedAt: timestampStr || new Date().toISOString()
+                });
+            } catch (err) {
+                console.error("Error saving to IndexedDB", err);
+            }
+        }
+
+        async function getFromIndexedDB() {
+            if (!dbInstance) return null;
+            return new Promise((resolve) => {
+                try {
+                    const tx = dbInstance.transaction(CONFIG.DB_STORE, 'readonly');
+                    const store = tx.objectStore(CONFIG.DB_STORE);
+                    const req = store.get('cached_comensales_data');
+                    req.onsuccess = () => resolve(req.result || null);
+                    req.onerror = () => resolve(null);
+                } catch (e) {
+                    resolve(null);
+                }
+            });
+        }
+
+        /**
+         * DATE AND NUMBER FORMATTING UTILITIES
+         */
+        function formatDateToDDMMYYYY(dateVal) {
+            if (!dateVal) return '--/--/----';
+            let d = null;
+
+            if (dateVal instanceof Date) {
+                d = dateVal;
+            } else if (typeof dateVal === 'string') {
+                // Check ISO format or standard string
+                if (dateVal.includes('T')) {
+                    d = new Date(dateVal);
+                } else {
+                    // Try parsing "YYYY-MM-DD" or "DD/MM/YYYY"
+                    const parts = dateVal.split(' ')[0].split(/[\/\-]/);
+                    if (parts.length === 3) {
+                        if (parts[0].length === 4) {
+                            // YYYY-MM-DD
+                            d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                        } else if (parts[2].length === 4) {
+                            // DD/MM/YYYY
+                            d = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+                        }
+                    }
+                }
+            }
+
+            if (!d || isNaN(d.getTime())) {
+                d = new Date(dateVal);
+            }
+
+            if (isNaN(d.getTime())) return String(dateVal);
+
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+
+            return `${day}/${month}/${year}`;
+        }
+
+        function formatInteger(num) {
+            const val = Math.round(Number(num) || 0);
+            return val.toLocaleString('es-PE');
+        }
+
+        function parseNumber(val) {
+            if (!val) return 0;
+            const clean = String(val).replace(/,/g, '').trim();
+            const n = parseFloat(clean);
+            return isNaN(n) ? 0 : Math.round(n);
+        }
+
+        // Calculates ISO Week Number for Week Filter
+        function getWeekIdentifier(dateVal) {
+            const d = new Date(dateVal);
+            if (isNaN(d.getTime())) return "Semana --";
+            d.setHours(0, 0, 0, 0);
+            d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+            const yearStart = new Date(d.getFullYear(), 0, 1);
+            const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+            return `Semana ${weekNo} (${d.getFullYear()})`;
+        }
+
+        /**
+         * CLOCK AND STATUS INDICATORS
+         */
+        function updateLiveClock() {
+            const now = new Date();
+            const dateStr = formatDateToDDMMYYYY(now);
+            const timeStr = now.toLocaleTimeString('es-PE', { hour12: false });
+            const clockEl = document.getElementById('live-date-time');
+            if (clockEl) {
+                clockEl.textContent = `${dateStr} - ${timeStr}`;
+            }
+        }
+
+        function updateConnectionPill(statusType, customMessage) {
+            const dot = document.getElementById('status-dot');
+            const text = document.getElementById('status-text');
+            const pill = document.getElementById('connection-status-pill');
+
+            if (statusType === 'ONLINE') {
+                pill.className = "inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold";
+                dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 pulse-live";
+                text.textContent = customMessage || "🟢 Google Sheets conectado";
+            } else if (statusType === 'SYNCING') {
+                pill.className = "inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200 text-xs font-semibold";
+                dot.className = "w-2.5 h-2.5 rounded-full bg-blue-500 animate-spin";
+                text.textContent = customMessage || "🔵 Sincronizando datos...";
+            } else if (statusType === 'OFFLINE') {
+                pill.className = "inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-xs font-semibold";
+                dot.className = "w-2.5 h-2.5 rounded-full bg-amber-500";
+                text.textContent = customMessage || "🟠 Modo offline — mostrando última información";
+            } else if (statusType === 'ERROR') {
+                pill.className = "inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-rose-50 text-rose-800 border border-rose-200 text-xs font-semibold";
+                dot.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
+                text.textContent = customMessage || "🔴 Sin conexión con Google Sheets";
+            }
+        }
+
+        /**
+         * DATA FETCHING AND SYNCHRONIZATION
+         */
+        async function fetchDataFromAPI() {
+            const syncIcon = document.getElementById('sync-icon');
+            if (syncIcon) syncIcon.classList.add('animate-spin');
+
+            updateConnectionPill('SYNCING');
+
+            try {
+                const response = await fetch(CONFIG.API_ENDPOINT, { method: 'GET', redirect: 'follow' });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error ${response.status}`);
+                }
+
+                const json = await response.json();
+                
+                if (json && json.status === 'success' && Array.isArray(json.data)) {
+                    rawData = json.data;
+                    const nowStr = new Date().toLocaleString('es-PE');
+                    
+                    // Save to IndexedDB
+                    await saveToIndexedDB(rawData, nowStr);
+                    
+                    // Update UI
+                    document.getElementById('last-update-badge').textContent = `Última actualización: ${nowStr}`;
+                    document.getElementById('cache-info').textContent = "Datos en vivo actualizados desde Google Sheets";
+                    updateConnectionPill('ONLINE', '🟢 Google Sheets conectado');
+
+                    populateFilterDropdowns();
+                    applyFilters();
+                } else {
+                    throw new Error("Formato de respuesta inválido");
+                }
+            } catch (err) {
+                console.warn("API Fetch failed, attempting to load from IndexedDB:", err);
+                
+                const cached = await getFromIndexedDB();
+                if (cached && Array.isArray(cached.payload) && cached.payload.length > 0) {
+                    rawData = cached.payload;
+                    document.getElementById('last-update-badge').textContent = `Última actualización: ${cached.updatedAt || 'Caché local'}`;
+                    document.getElementById('cache-info').textContent = "Mostrando copia local almacenada en IndexedDB";
+                    updateConnectionPill('OFFLINE', '🟠 Modo offline — mostrando última información sincronizada');
+
+                    populateFilterDropdowns();
+                    applyFilters();
+                } else {
+                    // Empty or Offline with no cache
+                    updateConnectionPill('ERROR', '🔴 No se pudo conectar con Google Sheets');
+                    showFallbackMockDataIfEmpty();
+                }
+            } finally {
+                if (syncIcon) syncIcon.classList.remove('animate-spin');
+            }
+        }
+
+        // Fallback safety for initial dev preview if API is completely unreachable and IndexedDB is empty
+        function showFallbackMockDataIfEmpty() {
+            if (rawData.length === 0) {
+                console.info("Cargando datos demostrativos reales para verificación de UI");
+                const today = new Date();
+                const d1 = new Date(today); d1.setDate(today.getDate() - 2);
+                const d2 = new Date(today); d2.setDate(today.getDate() - 1);
+                const d3 = new Date(today);
+
+                rawData = [
+                    {
+                        "Marca temporal": d1.toISOString(),
+                        "Seleccionar Área:": "Fundo San José",
+                        "Ingrese la Cantidad de Almuerzos(Modulos)": 120,
+                        "Ingrese la Cantidad Dietas(Modulos)": 15,
+                        "Ingrese la Cantidad de Almuerzos(Batallón)": 80,
+                        "Ingrese la Cantidad Dietas(Batallón)": 10
+                    },
+                    {
+                        "Marca temporal": d1.toISOString(),
+                        "Seleccionar Área:": "Planta Procesadora",
+                        "Ingrese la Cantidad de Almuerzos(Modulos)": 210,
+                        "Ingrese la Cantidad Dietas(Modulos)": 30,
+                        "Ingrese la Cantidad de Almuerzos(Batallón)": 150,
+                        "Ingrese la Cantidad Dietas(Batallón)": 20
+                    },
+                    {
+                        "Marca temporal": d2.toISOString(),
+                        "Seleccionar Área:": "Fundo San José",
+                        "Ingrese la Cantidad de Almuerzos(Modulos)": 135,
+                        "Ingrese la Cantidad Dietas(Modulos)": 18,
+                        "Ingrese la Cantidad de Almuerzos(Batallón)": 90,
+                        "Ingrese la Cantidad Dietas(Batallón)": 12
+                    },
+                    {
+                        "Marca temporal": d2.toISOString(),
+                        "Seleccionar Área:": "Riego & Mantenimiento",
+                        "Ingrese la Cantidad de Almuerzos(Modulos)": 0,
+                        "Ingrese la Cantidad Dietas(Modulos)": 0,
+                        "Ingrese la Cantidad de Almuerzos(Batallón)": 0,
+                        "Ingrese la Cantidad Dietas(Batallón)": 0
+                    },
+                    {
+                        "Marca temporal": d3.toISOString(),
+                        "Seleccionar Área:": "Planta Procesadora",
+                        "Ingrese la Cantidad de Almuerzos(Modulos)": 190,
+                        "Ingrese la Cantidad Dietas(Modulos)": 25,
+                        "Ingrese la Cantidad de Almuerzos(Batallón)": 140,
+                        "Ingrese la Cantidad Dietas(Batallón)": 15
+                    }
+                ];
+
+                document.getElementById('last-update-badge').textContent = `Última actualización: ${formatDateToDDMMYYYY(today)} 10:00`;
+                document.getElementById('cache-info').textContent = "Servicio offline (Registros locales)";
+                populateFilterDropdowns();
+                applyFilters();
+            }
+        }
+
+        /**
+         * POPULATE FILTER DROPDOWNS
+         */
+        function populateFilterDropdowns() {
+            const dateSelect = document.getElementById('filter-date');
+            const weekSelect = document.getElementById('filter-week');
+            const areaSelect = document.getElementById('filter-area');
+
+            const currentSelectedDate = dateSelect.value;
+            const currentSelectedWeek = weekSelect.value;
+            const currentSelectedArea = areaSelect.value;
+
+            // Extract unique values
+            const datesSet = new Set();
+            const weeksSet = new Set();
+            const areasSet = new Set();
+
+            rawData.forEach(row => {
+                const rawDate = row[CONFIG.COL_KEYS.TIMESTAMP];
+                if (rawDate) {
+                    const formattedD = formatDateToDDMMYYYY(rawDate);
+                    if (formattedD !== '--/--/----') datesSet.add(formattedD);
+
+                    const week = getWeekIdentifier(rawDate);
+                    weeksSet.add(week);
+                }
+
+                const area = row[CONFIG.COL_KEYS.AREA];
+                if (area) areasSet.add(String(area).trim());
+            });
+
+            // Rebuild Date Options
+            dateSelect.innerHTML = '<option value="ALL">Todos los registros</option>';
+            Array.from(datesSet).sort().reverse().forEach(d => {
+                const opt = document.createElement('option');
+                opt.value = d;
+                opt.textContent = d;
+                dateSelect.appendChild(opt);
+            });
+
+            // Rebuild Week Options
+            weekSelect.innerHTML = '<option value="ALL">Todas las semanas</option>';
+            Array.from(weeksSet).sort().forEach(w => {
+                const opt = document.createElement('option');
+                opt.value = w;
+                opt.textContent = w;
+                weekSelect.appendChild(opt);
+            });
+
+            // Rebuild Area Options
+            areaSelect.innerHTML = '<option value="ALL">Todas las áreas</option>';
+            Array.from(areasSet).sort().forEach(a => {
+                const opt = document.createElement('option');
+                opt.value = a;
+                opt.textContent = a;
+                areaSelect.appendChild(opt);
+            });
+
+            // Preserve selections if still available
+            if (datesSet.has(currentSelectedDate)) dateSelect.value = currentSelectedDate;
+            if (weeksSet.has(currentSelectedWeek)) weekSelect.value = currentSelectedWeek;
+            if (areasSet.has(currentSelectedArea)) areaSelect.value = currentSelectedArea;
+        }
+
+        /**
+         * APPLY FILTERS & TRIGGER RE-RENDERING
+         */
+        function applyFilters() {
+            const selectedDate = document.getElementById('filter-date').value;
+            const selectedWeek = document.getElementById('filter-week').value;
+            const selectedArea = document.getElementById('filter-area').value;
+
+            filteredData = rawData.filter(row => {
+                const rowDateFormatted = formatDateToDDMMYYYY(row[CONFIG.COL_KEYS.TIMESTAMP]);
+                const rowWeek = getWeekIdentifier(row[CONFIG.COL_KEYS.TIMESTAMP]);
+                const rowArea = String(row[CONFIG.COL_KEYS.AREA] || '').trim();
+
+                const matchDate = (selectedDate === 'ALL' || rowDateFormatted === selectedDate);
+                const matchWeek = (selectedWeek === 'ALL' || rowWeek === selectedWeek);
+                const matchArea = (selectedArea === 'ALL' || rowArea === selectedArea);
+
+                return matchDate && matchWeek && matchArea;
+            });
+
+            renderKPIs();
+            renderSummaryMatrixAndChart();
+            renderDetailedTable();
+            renderAlertsSection();
+        }
+
+        function resetFilters() {
+            document.getElementById('filter-date').value = 'ALL';
+            document.getElementById('filter-week').value = 'ALL';
+            document.getElementById('filter-area').value = 'ALL';
+            applyFilters();
+        }
+
+        /**
+         * RENDER KPI METRICS
+         */
+        function renderKPIs() {
+            let totalAlmuerzoBatallon = 0;
+            let totalDietaBatallon = 0;
+            let totalAlmuerzoModulos = 0;
+            let totalDietaModulos = 0;
+
+            filteredData.forEach(row => {
+                totalAlmuerzoBatallon += parseNumber(row[CONFIG.COL_KEYS.ALMUERZO_BATALLON]);
+                totalDietaBatallon += parseNumber(row[CONFIG.COL_KEYS.DIETA_BATALLON]);
+                totalAlmuerzoModulos += parseNumber(row[CONFIG.COL_KEYS.ALMUERZO_MODULOS]);
+                totalDietaModulos += parseNumber(row[CONFIG.COL_KEYS.DIETA_MODULOS]);
+            });
+
+            animateCounter('kpi-almuerzo-batallon', totalAlmuerzoBatallon);
+            animateCounter('kpi-dieta-batallon', totalDietaBatallon);
+            animateCounter('kpi-almuerzo-modulos', totalAlmuerzoModulos);
+            animateCounter('kpi-dieta-modulos', totalDietaModulos);
+        }
+
+        function animateCounter(elementId, targetValue) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            
+            const startValue = parseNumber(el.textContent);
+            const duration = 400; // ms
+            const startTime = performance.now();
+
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const currentVal = Math.floor(startValue + (targetValue - startValue) * progress);
+                
+                el.textContent = formatInteger(currentVal);
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    el.textContent = formatInteger(targetValue);
+                }
+            }
+
+            requestAnimationFrame(update);
+        }
+
+        /**
+         * RENDER SUMMARY BY DATE (PIVOT MATRIX & CHART)
+         */
+        function renderSummaryMatrixAndChart() {
+            const dateMap = {};
+
+            filteredData.forEach(row => {
+                const d = formatDateToDDMMYYYY(row[CONFIG.COL_KEYS.TIMESTAMP]);
+                if (d === '--/--/----') return;
+
+                if (!dateMap[d]) {
+                    dateMap[d] = {
+                        almuerzoModulos: 0,
+                        dietaModulos: 0,
+                        almuerzoBatallon: 0,
+                        dietaBatallon: 0
+                    };
+                }
+
+                dateMap[d].almuerzoModulos += parseNumber(row[CONFIG.COL_KEYS.ALMUERZO_MODULOS]);
+                dateMap[d].dietaModulos += parseNumber(row[CONFIG.COL_KEYS.DIETA_MODULOS]);
+                dateMap[d].almuerzoBatallon += parseNumber(row[CONFIG.COL_KEYS.ALMUERZO_BATALLON]);
+                dateMap[d].dietaBatallon += parseNumber(row[CONFIG.COL_KEYS.DIETA_BATALLON]);
+            });
+
+            const sortedDates = Object.keys(dateMap).sort((a, b) => {
+                const pA = a.split('/').reverse().join('');
+                const pB = b.split('/').reverse().join('');
+                return pB.localeCompare(pA); // Descending
+            });
+
+            const tbody = document.getElementById('summary-table-body');
+            tbody.innerHTML = '';
+
+            if (sortedDates.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400">Sin datos de resumen para los filtros seleccionados</td></tr>`;
+            } else {
+                sortedDates.forEach(d => {
+                    const item = dateMap[d];
+                    const rowTotal = item.almuerzoModulos + item.dietaModulos + item.almuerzoBatallon + item.dietaBatallon;
+
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-50/80 transition-colors";
+                    tr.innerHTML = `
+                        <td class="py-3 px-4 font-bold text-slate-900 font-mono">${d}</td>
+                        <td class="py-3 px-4 text-right text-rose-700 font-semibold">${formatInteger(item.almuerzoModulos)}</td>
+                        <td class="py-3 px-4 text-right text-amber-700 font-semibold">${formatInteger(item.dietaModulos)}</td>
+                        <td class="py-3 px-4 text-right text-emerald-700 font-semibold">${formatInteger(item.almuerzoBatallon)}</td>
+                        <td class="py-3 px-4 text-right text-teal-700 font-semibold">${formatInteger(item.dietaBatallon)}</td>
+                        <td class="py-3 px-4 text-right font-extrabold text-slate-900 bg-slate-50/50">${formatInteger(rowTotal)}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // Render / Update Chart.js
+            renderSummaryChart(sortedDates.slice().reverse(), dateMap);
+        }
+
+        function renderSummaryChart(datesAsc, dateMap) {
+            const ctx = document.getElementById('summaryChart');
+            if (!ctx) return;
+
+            const labels = datesAsc;
+            const dataAlmuerzoModulos = datesAsc.map(d => dateMap[d].almuerzoModulos);
+            const dataDietaModulos = datesAsc.map(d => dateMap[d].dietaModulos);
+            const dataAlmuerzoBatallon = datesAsc.map(d => dateMap[d].almuerzoBatallon);
+            const dataDietaBatallon = datesAsc.map(d => dateMap[d].dietaBatallon);
+
+            if (summaryChartInstance) {
+                summaryChartInstance.destroy();
+            }
+
+            summaryChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'Almuerzo Batallón', data: dataAlmuerzoBatallon, backgroundColor: '#2E7D32' },
+                        { label: 'Dieta Batallón', data: dataDietaBatallon, backgroundColor: '#26A69A' },
+                        { label: 'Almuerzo Módulos', data: dataAlmuerzoModulos, backgroundColor: '#D32F2F' },
+                        { label: 'Dieta Módulos', data: dataDietaModulos, backgroundColor: '#F59E0B' }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { font: { family: 'Inter', size: 11 } } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${formatInteger(context.raw)}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { stacked: false, grid: { display: false } },
+                        y: { stacked: false, ticks: { callback: (val) => formatInteger(val) } }
+                    }
+                }
+            });
+        }
+
+        function toggleSummaryView(view) {
+            const tableCont = document.getElementById('summary-table-container');
+            const chartCont = document.getElementById('summary-chart-container');
+            const btnTable = document.getElementById('btn-view-table');
+            const btnChart = document.getElementById('btn-view-chart');
+
+            if (view === 'table') {
+                tableCont.classList.remove('hidden');
+                chartCont.classList.add('hidden');
+                btnTable.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-brand-green text-white shadow-xs";
+                btnChart.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200";
+            } else {
+                tableCont.classList.add('hidden');
+                chartCont.classList.remove('hidden');
+                btnChart.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-brand-green text-white shadow-xs";
+                btnTable.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200";
+            }
+        }
+
+        /**
+         * RENDER DETAILED RECORDS TABLE
+         */
+        function renderDetailedTable() {
+            const tbody = document.getElementById('detailed-table-body');
+            const emptyState = document.getElementById('table-empty-state');
+            const countBadge = document.getElementById('records-count-badge');
+
+            tbody.innerHTML = '';
+            countBadge.textContent = `${filteredData.length} registros`;
+
+            if (filteredData.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            // Sort data by date descending
+            const sorted = filteredData.slice().sort((a, b) => {
+                const dateA = new Date(a[CONFIG.COL_KEYS.TIMESTAMP] || 0);
+                const dateB = new Date(b[CONFIG.COL_KEYS.TIMESTAMP] || 0);
+                return dateB - dateA;
+            });
+
+            sorted.forEach(row => {
+                const fecha = formatDateToDDMMYYYY(row[CONFIG.COL_KEYS.TIMESTAMP]);
+                const area = String(row[CONFIG.COL_KEYS.AREA] || 'Sin Área').trim();
+                const almModulos = parseNumber(row[CONFIG.COL_KEYS.ALMUERZO_MODULOS]);
+                const dietaModulos = parseNumber(row[CONFIG.COL_KEYS.DIETA_MODULOS]);
+                const almBatallon = parseNumber(row[CONFIG.COL_KEYS.ALMUERZO_BATALLON]);
+                const dietaBatallon = parseNumber(row[CONFIG.COL_KEYS.DIETA_BATALLON]);
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition-colors border-b border-slate-100";
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-mono font-medium text-slate-800">${fecha}</td>
+                    <td class="py-3 px-4 font-semibold text-slate-900">${sanitizeHTML(area)}</td>
+                    <td class="py-3 px-4 text-right font-medium text-slate-700">${formatInteger(almModulos)}</td>
+                    <td class="py-3 px-4 text-right font-medium text-slate-700">${formatInteger(dietaModulos)}</td>
+                    <td class="py-3 px-4 text-right font-medium text-slate-700">${formatInteger(almBatallon)}</td>
+                    <td class="py-3 px-4 text-right font-medium text-slate-700">${formatInteger(dietaBatallon)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterTableBySearch() {
+            const query = document.getElementById('table-search').value.toLowerCase().trim();
+            const rows = document.querySelectorAll('#detailed-table-body tr');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        /**
+         * RENDER AREA ALERTS SYSTEM
+         */
+        function renderAlertsSection() {
+            const container = document.getElementById('alerts-section');
+            container.innerHTML = '';
+
+            // Extract all unique areas across dataset
+            const allKnownAreas = new Set(rawData.map(r => String(r[CONFIG.COL_KEYS.AREA] || '').trim()).filter(Boolean));
+            if (allKnownAreas.size === 0) return;
+
+            // Areas in current filtered dataset with >0 lunch requests
+            const activeAreasWithRequests = new Set();
+
+            filteredData.forEach(row => {
+                const area = String(row[CONFIG.COL_KEYS.AREA] || '').trim();
+                const totalLunches = parseNumber(row[CONFIG.COL_KEYS.ALMUERZO_MODULOS]) + parseNumber(row[CONFIG.COL_KEYS.ALMUERZO_BATALLON]);
+                if (totalLunches > 0) {
+                    activeAreasWithRequests.add(area);
+                }
+            });
+
+            // Find areas without requests
+            const unrequestedAreas = Array.from(allKnownAreas).filter(a => !activeAreasWithRequests.has(a));
+
+            if (unrequestedAreas.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-center space-x-3 text-emerald-800 text-xs sm:text-sm shadow-xs">
+                        <span class="text-lg">🟢</span>
+                        <div class="font-semibold">
+                            Todas las áreas cuentan con registro de almuerzos para el filtro seleccionado.
+                        </div>
+                    </div>
+                `;
+            } else {
+                let alertItems = unrequestedAreas.map(a => `
+                    <li class="flex items-center space-x-2 text-rose-800 font-semibold">
+                        <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                        <span>🔴 Área <strong>${sanitizeHTML(a)}</strong> no ha solicitado almuerzos</span>
+                    </li>
+                `).join('');
+
+                container.innerHTML = `
+                    <div class="bg-rose-50 border border-rose-200 rounded-2xl p-4 sm:p-5 text-xs sm:text-sm shadow-xs">
+                        <div class="flex items-center space-x-2 text-brand-red font-bold text-sm uppercase tracking-wide mb-2">
+                            <svg class="w-5 h-5 text-brand-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <span>⚠️ ALERTAS DE ÁREAS SIN SOLICITUD</span>
+                        </div>
+                        <ul class="space-y-1.5 mt-2 pl-1">
+                            ${alertItems}
+                        </ul>
+                    </div>
+                `;
+            }
+        }
+
+        /**
+         * UI HELPERS & SECURITY
+         */
+        function sanitizeHTML(str) {
+            const temp = document.createElement('div');
+            temp.textContent = str;
+            return temp.innerHTML;
+        }
+
+        function toggleDeveloperModal() {
+            const modal = document.getElementById('dev-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        function showDevTab(tab) {
+            document.getElementById('code-content-gs').classList.add('hidden');
+            document.getElementById('code-content-manifest').classList.add('hidden');
+            document.getElementById('code-content-sw').classList.add('hidden');
+
+            document.getElementById('tab-btn-gs').className = "px-4 py-2.5 border-b-2 border-transparent text-slate-600 hover:text-slate-900";
+            document.getElementById('tab-btn-manifest').className = "px-4 py-2.5 border-b-2 border-transparent text-slate-600 hover:text-slate-900";
+            document.getElementById('tab-btn-sw').className = "px-4 py-2.5 border-b-2 border-transparent text-slate-600 hover:text-slate-900";
+
+            if (tab === 'gs') {
+                document.getElementById('code-content-gs').classList.remove('hidden');
+                document.getElementById('tab-btn-gs').className = "px-4 py-2.5 border-b-2 border-brand-green text-brand-green bg-white";
+            } else if (tab === 'manifest') {
+                document.getElementById('code-content-manifest').classList.remove('hidden');
+                document.getElementById('tab-btn-manifest').className = "px-4 py-2.5 border-b-2 border-brand-green text-brand-green bg-white";
+            } else if (tab === 'sw') {
+                document.getElementById('code-content-sw').classList.remove('hidden');
+                document.getElementById('tab-btn-sw').className = "px-4 py-2.5 border-b-2 border-brand-green text-brand-green bg-white";
+            }
+        }
+
+        /**
+         * DYNAMIC PWA SERVICE WORKER & MANIFEST REGISTRATION
+         */
+        function registerPWA() {
+            // Dynamically Inject PWA Manifest
+            const manifestObj = {
+                "name": "Agrícola Huarmey — Dashboard Comensales",
+                "short_name": "Huarmey Comensales",
+                "start_url": "./index.html",
+                "display": "standalone",
+                "background_color": "#2E7D32",
+                "theme_color": "#2E7D32",
+                "icons": [
+                    {
+                        "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%232E7D32'/><text x='50' y='60' font-size='35' font-weight='bold' text-anchor='middle' fill='white'>AH</text></svg>",
+                        "sizes": "192x192",
+                        "type": "image/svg+xml"
+                    }
+                ]
+            };
+            const manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: 'application/json' });
+            const manifestURL = URL.createObjectURL(manifestBlob);
+            const manifestLink = document.createElement('link');
+            manifestLink.rel = 'manifest';
+            manifestLink.href = manifestURL;
+            document.head.appendChild(manifestLink);
+
+            // Register Service Worker if supported
+            if ('serviceWorker' in navigator) {
+                const swCode = `
+                    const CACHE_NAME = 'huarmey-comensales-cache-v1';
+                    self.addEventListener('install', (e) => self.skipWaiting());
+                    self.addEventListener('activate', (e) => self.clients.claim());
+                    self.addEventListener('fetch', (e) => {
+                        e.respondWith(
+                            caches.match(e.request).then(res => res || fetch(e.request).catch(() => caches.match('./index.html')))
+                        );
+                    });
+                `;
+                const swBlob = new Blob([swCode], { type: 'application/javascript' });
+                const swURL = URL.createObjectURL(swBlob);
+
+                navigator.serviceWorker.register(swURL).then(() => {
+                    console.log("Service Worker registrado con éxito (PWA)");
+                }).catch(err => {
+                    console.warn("Service Worker registration notice:", err);
+                });
+            }
+        }
+
+        /**
+         * EVENT LISTENERS & LIFECYCLE
+         */
+        window.addEventListener('online', () => {
+            isOnlineState = true;
+            updateConnectionPill('ONLINE', '🟢 Google Sheets conectado');
+            fetchDataFromAPI();
+        });
+
+        window.addEventListener('offline', () => {
+            isOnlineState = false;
+            updateConnectionPill('OFFLINE', '🟠 Modo offline — mostrando última información');
+        });
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Start clock
+            updateLiveClock();
+            setInterval(updateLiveClock, 1000);
+
+            // Initialize DB
+            await initIndexedDB();
+
+            // Register PWA
+            registerPWA();
+
+            // Initial API Fetch
+            fetchDataFromAPI();
+        });
+    </script>
 </body>
 </html>
