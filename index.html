@@ -703,11 +703,11 @@ self.addEventListener('fetch', (evt) => {
             if (statusType === 'ONLINE') {
                 pill.className = "inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold";
                 dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 pulse-live";
-                text.textContent = customMessage || "🟢 Google Sheets conectado";
+                text.textContent = customMessage || "🟢 Conectado a la BD...";
             } else if (statusType === 'SYNCING') {
                 pill.className = "inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200 text-xs font-semibold";
                 dot.className = "w-2.5 h-2.5 rounded-full bg-blue-500 animate-spin";
-                text.textContent = customMessage || "🔵 Sincronizando datos...";
+                text.textContent = customMessage || "🔵 Conectandose a la BD...";
             } else if (statusType === 'OFFLINE') {
                 pill.className = "inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-xs font-semibold";
                 dot.className = "w-2.5 h-2.5 rounded-full bg-amber-500";
@@ -715,7 +715,7 @@ self.addEventListener('fetch', (evt) => {
             } else if (statusType === 'ERROR') {
                 pill.className = "inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-rose-50 text-rose-800 border border-rose-200 text-xs font-semibold";
                 dot.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
-                text.textContent = customMessage || "🔴 Sin conexión con Google Sheets";
+                text.textContent = customMessage || "🔴 No tiene conexión a la BD...";
             }
         }
 
@@ -768,7 +768,7 @@ self.addEventListener('fetch', (evt) => {
                     applyFilters();
                 } else {
                     // Empty or Offline with no cache
-                    updateConnectionPill('ERROR', '🔴 No se pudo conectar con Google Sheets');
+                    updateConnectionPill('ERROR', '🔴 No se pudo conectar a la BD...');
                     showFallbackMockDataIfEmpty();
                 }
             } finally {
@@ -1312,7 +1312,7 @@ self.addEventListener('fetch', (evt) => {
          */
         window.addEventListener('online', () => {
             isOnlineState = true;
-            updateConnectionPill('ONLINE', '🟢 Google Sheets conectado');
+            updateConnectionPill('ONLINE', '🟢 Conectado a la BD...');
             fetchDataFromAPI();
         });
 
