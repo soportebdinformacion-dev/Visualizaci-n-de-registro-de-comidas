@@ -106,7 +106,7 @@
                         </h1>
                         <p class="text-xs text-brand-green font-semibold flex items-center gap-1.5 mt-0.5">
                             <span class="inline-block w-2 h-2 rounded-full bg-brand-green"></span>
-                            Agrícola Huarmey — Sistema Comensales
+                            Agrícola Huarmey | Fundo Frusan — Sistema Comensales
                         </p>
                     </div>
                 </div>
@@ -125,7 +125,7 @@
                     <!-- Connection Status Pill -->
                     <div id="connection-status-pill" class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold">
                         <span id="status-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-500 pulse-live"></span>
-                        <span id="status-text">🟢 Google Sheets conectado</span>
+                        <span id="status-text">🟢 Conectado a la BD...</span>
                     </div>
 
                     <!-- Refresh Button & Mobile Menu Modal Trigger -->
@@ -747,7 +747,7 @@ self.addEventListener('fetch', (evt) => {
                     // Update UI
                     document.getElementById('last-update-badge').textContent = `Última actualización: ${nowStr}`;
                     document.getElementById('cache-info').textContent = "Datos en vivo actualizados desde Google Sheets";
-                    updateConnectionPill('ONLINE', '🟢 Google Sheets conectado');
+                    updateConnectionPill('ONLINE', '🟢 Conectado a la BD...');
 
                     populateFilterDropdowns();
                     applyFilters();
