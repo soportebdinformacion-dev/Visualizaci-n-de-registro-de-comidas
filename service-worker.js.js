@@ -1,42 +1,27 @@
-const CACHE_NAME = 'ah-comensales-v1';
-const ASSETS = [
-'./',
-'./index.html',
-'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
-'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap'
-];
+/* Service Worker PWA Agrícola Huarmey */
+const CACHE_NAME = 'huarmey-comensales-v1';
+const ASSETS = ['./', './index.html'];
 
-self.addEventListener('install', event => {
-event.waitUntil(
-caches.open(CACHE_NAME).then(cache => {
-return cache.addAll(ASSETS);
-})
-);
-self.skipWaiting();
+self.addEventListener('install', (evt) => {
+  evt.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+  );
+  self.skipWaiting();
 });
 
-self.addEventListener('activate', event => {
-event.waitUntil(
-caches.keys().then(keys => {
-return Promise.all(
-keys.map(key => {
-if (key !== CACHE_NAME) {
-return caches.delete(key);
-}
-})
-);
-})
-);
-self.clients.claim();
+self.addEventListener('activate', (evt) => {
+  evt.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+      );
+    })
+  );
+  self.clients.claim();
 });
 
-self.addEventListener('fetch', event => {
-event.respondWith(
-caches.match(event.request).then(cachedResponse => {
-if (cachedResponse) {
-return cachedResponse;
-}
-return fetch(event.request);
-})
-);
+self.addEventListener('fetch', (evt) => {
+  evt.respondWith(
+    caches.match(evt.request).then((res) => res || fetch(evt.request))
+  );
 });
