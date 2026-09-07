@@ -730,7 +730,7 @@ self.addEventListener('fetch', (evt) => {
                     
                     document.getElementById('last-update-badge').textContent = `Última actualización: ${nowStr}`;
                     document.getElementById('cache-info').textContent = "Datos en vivo actualizados desde Google Sheets";
-                    updateConnectionPill('ONLINE', '🟢 Google Sheets conectado');
+                    updateConnectionPill('ONLINE', '🟢 Conectado a la BD...');
 
                     populateFilterDropdowns();
                     applyFilters();
