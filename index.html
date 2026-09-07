@@ -286,7 +286,7 @@
                         </svg>
                         Resumen Consolidado por Fecha
                     </h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Agrupación diaria de requerimientos de comensales (Formato DD/MM/YYYY)</p>
+                    <p class="text-xs text-slate-500 mt-0.5">Agrupación diaria de requerimientos de comensales</p>
                 </div>
                 <div class="flex items-center space-x-2">
                     <button onclick="toggleSummaryView('table')" id="btn-view-table" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-brand-green text-white shadow-xs">
@@ -1337,7 +1337,7 @@ self.addEventListener('fetch', (evt) => {
          */
         window.addEventListener('online', () => {
             isOnlineState = true;
-            updateConnectionPill('ONLINE', '🟢 Google Sheets conectado');
+            updateConnectionPill('ONLINE', '🟢 Conectado a la BD...');
             fetchDataFromAPI();
         });
 
