@@ -99,15 +99,18 @@
                     </div>
                 </div>
 
-                <!-- Live Date, Time & Connection Status -->
+                <!-- Connection Status & Sync Info (MODIFICADO: Reubicado en parte superior derecha) -->
                 <div class="flex flex-wrap items-center justify-between md:justify-end gap-3 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100 text-xs sm:text-sm">
                     
-                    <!-- Date & Time Display -->
-                    <div class="bg-slate-100/80 px-3 py-1.5 rounded-lg border border-slate-200/80 font-mono text-slate-700 flex items-center space-x-2">
-                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span id="live-date-time" class="font-semibold">05/09/2026 --:--:--</span>
+                    <!-- Estado de Sincronización reubicado -->
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 text-xs text-slate-500 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
+                        <div class="flex items-center space-x-1.5">
+                            <span class="font-medium text-slate-700">Estado de Sincronización:</span>
+                            <span id="last-update-badge" class="bg-white text-slate-600 px-2 py-0.5 rounded border border-slate-200 font-mono">Última actualización: --/--/---- --:--</span>
+                        </div>
+                        <div id="cache-info" class="text-slate-400 italic text-[11px]">
+                            Modo de lectura de datos activo
+                        </div>
                     </div>
 
                     <!-- Connection Status Pill -->
@@ -135,17 +138,6 @@
     </header>
 
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        
-        <!-- Last Sync Info Sub-Bar -->
-        <div class="flex flex-wrap items-center justify-between text-xs text-slate-500 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-xs">
-            <div class="flex items-center space-x-2">
-                <span class="font-medium text-slate-700">Estado de Sincronización:</span>
-                <span id="last-update-badge" class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono">Última actualización: --/--/---- --:--</span>
-            </div>
-            <div id="cache-info" class="text-slate-400 italic">
-                Modo de lectura de datos activo
-            </div>
-        </div>
 
         <!-- Interactive Filters Toolbar -->
         <section class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm">
@@ -270,12 +262,7 @@
 
         </section>
 
-        <!-- Alerts Banner Section -->
-        <section id="alerts-section" class="transition-all duration-300">
-            <!-- Dynamic Alert Container Populated JS -->
-        </section>
-
-        <!-- Visual de Resumen por Fecha -->
+        <!-- Visual de Resumen por Fecha (MODIFICADO: Conceptos en filas, Fechas en columnas) -->
         <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div>
@@ -297,21 +284,17 @@
                 </div>
             </div>
 
-            <!-- Table View Matrix -->
+            <!-- Table View Matrix Transposed -->
             <div id="summary-table-container" class="p-4 overflow-x-auto custom-scrollbar">
                 <table class="w-full text-sm text-left border-collapse min-w-[600px]">
                     <thead>
-                        <tr class="bg-slate-50 text-slate-600 font-bold text-xs uppercase border-b border-slate-200">
-                            <th class="py-3 px-4">Fecha</th>
-                            <th class="py-3 px-4 text-right">Almuerzo Módulos</th>
-                            <th class="py-3 px-4 text-right">Dieta Módulos</th>
-                            <th class="py-3 px-4 text-right">Almuerzo Batallón</th>
-                            <th class="py-3 px-4 text-right">Dieta Batallón</th>
-                            <th class="py-3 px-4 text-right bg-slate-100/80">Total Día</th>
+                        <tr id="summary-table-header" class="bg-slate-50 text-slate-600 font-bold text-xs uppercase border-b border-slate-200">
+                            <th class="py-3 px-4 min-w-[180px]">Concepto</th>
+                            <!-- Fechas Dinámicas aquí -->
                         </tr>
                     </thead>
                     <tbody id="summary-table-body" class="divide-y divide-slate-100 text-slate-700">
-                        <!-- Dynamic rows -->
+                        <!-- Filas dinámicas de Conceptos -->
                     </tbody>
                 </table>
             </div>
@@ -324,7 +307,7 @@
             </div>
         </section>
 
-        <!-- Tabla Detallada -->
+        <!-- Tabla Detallada (MODIFICADO: Totales acumulados en encabezados) -->
         <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                 <div>
@@ -351,10 +334,10 @@
                         <tr class="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider border-b border-slate-200">
                             <th class="py-3.5 px-4">Fecha</th>
                             <th class="py-3.5 px-4">Área</th>
-                            <th class="py-3.5 px-4 text-right">Almuerzo Módulos</th>
-                            <th class="py-3.5 px-4 text-right">Dieta Módulos</th>
-                            <th class="py-3.5 px-4 text-right">Almuerzo Batallón</th>
-                            <th class="py-3.5 px-4 text-right">Dieta Batallón</th>
+                            <th class="py-3.5 px-4 text-right">Almuerzo Módulos <span id="th-total-alm-mod" class="text-rose-700 font-extrabold ml-1">(0)</span></th>
+                            <th class="py-3.5 px-4 text-right">Dieta Módulos <span id="th-total-diet-mod" class="text-amber-700 font-extrabold ml-1">(0)</span></th>
+                            <th class="py-3.5 px-4 text-right">Almuerzo Batallón <span id="th-total-alm-bat" class="text-emerald-700 font-extrabold ml-1">(0)</span></th>
+                            <th class="py-3.5 px-4 text-right">Dieta Batallón <span id="th-total-diet-bat" class="text-teal-700 font-extrabold ml-1">(0)</span></th>
                         </tr>
                     </thead>
                     <tbody id="detailed-table-body" class="divide-y divide-slate-100 text-slate-700 font-medium">
@@ -667,18 +650,8 @@ self.addEventListener('fetch', (evt) => {
         }
 
         /**
-         * CLOCK AND STATUS INDICATORS
+         * STATUS INDICATORS
          */
-        function updateLiveClock() {
-            const now = new Date();
-            const dateStr = formatDateToDDMMYYYY(now);
-            const timeStr = now.toLocaleTimeString('es-PE', { hour12: false });
-            const clockEl = document.getElementById('live-date-time');
-            if (clockEl) {
-                clockEl.textContent = `${dateStr} - ${timeStr}`;
-            }
-        }
-
         function updateConnectionPill(statusType, customMessage) {
             const dot = document.getElementById('status-dot');
             const text = document.getElementById('status-text');
@@ -850,7 +823,7 @@ self.addEventListener('fetch', (evt) => {
             const sortedDatesDescending = Array.from(datesSet).sort((a, b) => {
                 const partsA = a.split('/').reverse().join('');
                 const partsB = b.split('/').reverse().join('');
-                return partsB.localeCompare(partsA); // Más reciente primero
+                return partsB.localeCompare(partsA);
             });
 
             sortedDatesDescending.forEach(d => {
@@ -906,7 +879,6 @@ self.addEventListener('fetch', (evt) => {
             renderKPIs();
             renderSummaryMatrixAndChart();
             renderDetailedTable();
-            renderAlertsSection();
         }
 
         function resetFilters() {
@@ -943,7 +915,7 @@ self.addEventListener('fetch', (evt) => {
             if (!el) return;
             
             const startValue = parseNumber(el.textContent) || 0;
-            const duration = 400; // ms
+            const duration = 400;
             const startTime = performance.now();
 
             function update(currentTime) {
@@ -964,7 +936,7 @@ self.addEventListener('fetch', (evt) => {
         }
 
         /**
-         * RENDER SUMMARY BY DATE (PIVOT MATRIX & CHART)
+         * RENDER SUMMARY BY DATE (MODIFICADO: CONCEPTOS EN FILAS, FECHAS EN COLUMNAS)
          */
         function renderSummaryMatrixAndChart() {
             const dateMap = {};
@@ -991,32 +963,79 @@ self.addEventListener('fetch', (evt) => {
             const sortedDates = Object.keys(dateMap).sort((a, b) => {
                 const pA = a.split('/').reverse().join('');
                 const pB = b.split('/').reverse().join('');
-                return pB.localeCompare(pA);
+                return pB.localeCompare(pA); // Más recientes primero
             });
 
+            const headerRow = document.getElementById('summary-table-header');
             const tbody = document.getElementById('summary-table-body');
+            
+            // Construir Encabezados de Columna con Fechas
+            headerRow.innerHTML = '<th class="py-3 px-4 min-w-[180px] bg-slate-100/90 text-slate-800">Concepto</th>';
+            
+            if (sortedDates.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="2" class="text-center py-6 text-slate-400">Sin datos de resumen para los filtros seleccionados</td></tr>`;
+                renderSummaryChart([], {});
+                return;
+            }
+
+            sortedDates.forEach(d => {
+                const th = document.createElement('th');
+                th.className = "py-3 px-4 text-right font-mono text-slate-800 min-w-[110px]";
+                th.textContent = d;
+                headerRow.appendChild(th);
+            });
+
+            // Fila de Total General por Fecha
+            const thTotal = document.createElement('th');
+            thTotal.className = "py-3 px-4 text-right font-mono text-slate-900 bg-slate-100 min-w-[120px]";
+            thTotal.textContent = "TOTAL";
+            headerRow.appendChild(thTotal);
+
+            // Definición de filas de conceptos requeridas
+            const concepts = [
+                { key: 'almuerzoModulos', label: 'Almuerzo Módulos', colorClass: 'text-rose-700 font-semibold' },
+                { key: 'dietaModulos', label: 'Dieta Módulos', colorClass: 'text-amber-700 font-semibold' },
+                { key: 'almuerzoBatallon', label: 'Almuerzo Batallón', colorClass: 'text-emerald-700 font-semibold' },
+                { key: 'dietaBatallon', label: 'Dieta Batallón', colorClass: 'text-teal-700 font-semibold' }
+            ];
+
             tbody.innerHTML = '';
 
-            if (sortedDates.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400">Sin datos de resumen para los filtros seleccionados</td></tr>`;
-            } else {
-                sortedDates.forEach(d => {
-                    const item = dateMap[d];
-                    const rowTotal = item.almuerzoModulos + item.dietaModulos + item.almuerzoBatallon + item.dietaBatallon;
+            concepts.forEach(concept => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/80 transition-colors border-b border-slate-100";
+                
+                let conceptTotal = 0;
+                let cellsHTML = `<td class="py-3 px-4 font-bold text-slate-900 ${concept.colorClass}">${concept.label}</td>`;
 
-                    const tr = document.createElement('tr');
-                    tr.className = "hover:bg-slate-50/80 transition-colors";
-                    tr.innerHTML = `
-                        <td class="py-3 px-4 font-bold text-slate-900 font-mono">${d}</td>
-                        <td class="py-3 px-4 text-right text-rose-700 font-semibold">${formatInteger(item.almuerzoModulos)}</td>
-                        <td class="py-3 px-4 text-right text-amber-700 font-semibold">${formatInteger(item.dietaModulos)}</td>
-                        <td class="py-3 px-4 text-right text-emerald-700 font-semibold">${formatInteger(item.almuerzoBatallon)}</td>
-                        <td class="py-3 px-4 text-right text-teal-700 font-semibold">${formatInteger(item.dietaBatallon)}</td>
-                        <td class="py-3 px-4 text-right font-extrabold text-slate-900 bg-slate-50/50">${formatInteger(rowTotal)}</td>
-                    `;
-                    tbody.appendChild(tr);
+                sortedDates.forEach(d => {
+                    const val = dateMap[d][concept.key] || 0;
+                    conceptTotal += val;
+                    cellsHTML += `<td class="py-3 px-4 text-right font-medium text-slate-700">${formatInteger(val)}</td>`;
                 });
-            }
+
+                // Total por concepto acumulado
+                cellsHTML += `<td class="py-3 px-4 text-right font-extrabold text-slate-900 bg-slate-50/50">${formatInteger(conceptTotal)}</td>`;
+
+                tr.innerHTML = cellsHTML;
+                tbody.appendChild(tr);
+            });
+
+            // Fila Final de Totales por Fecha
+            const trTotal = document.createElement('tr');
+            trTotal.className = "bg-slate-50/90 font-extrabold text-slate-900 border-t-2 border-slate-200";
+            let grandTotal = 0;
+            let totalRowHTML = `<td class="py-3 px-4 font-bold uppercase tracking-wider text-xs text-slate-700">Total Día</td>`;
+
+            sortedDates.forEach(d => {
+                const dayTotal = dateMap[d].almuerzoModulos + dateMap[d].dietaModulos + dateMap[d].almuerzoBatallon + dateMap[d].dietaBatallon;
+                grandTotal += dayTotal;
+                totalRowHTML += `<td class="py-3 px-4 text-right text-slate-900">${formatInteger(dayTotal)}</td>`;
+            });
+
+            totalRowHTML += `<td class="py-3 px-4 text-right text-brand-green bg-emerald-50/50 text-base">${formatInteger(grandTotal)}</td>`;
+            trTotal.innerHTML = totalRowHTML;
+            tbody.appendChild(trTotal);
 
             renderSummaryChart(sortedDates.slice().reverse(), dateMap);
         }
@@ -1087,7 +1106,7 @@ self.addEventListener('fetch', (evt) => {
         }
 
         /**
-         * RENDER DETAILED RECORDS TABLE (CON ÁREAS OBLIGATORIAS Y VALORES VACÍOS EN ROJO)
+         * RENDER DETAILED RECORDS TABLE (MODIFICADO: SUMAS TOTALES EN ENCABEZADOS DE COLUMNA)
          */
         function renderDetailedTable() {
             const tbody = document.getElementById('detailed-table-body');
@@ -1102,7 +1121,6 @@ self.addEventListener('fetch', (evt) => {
             ).sort();
 
             const selectedDate = document.getElementById('filter-date').value;
-            const selectedWeek = document.getElementById('filter-week').value;
             const selectedAreaFilter = document.getElementById('filter-area').value;
 
             // Determinar qué fechas renderizar en la tabla
@@ -1110,7 +1128,6 @@ self.addEventListener('fetch', (evt) => {
             if (selectedDate !== 'ALL') {
                 datesToRender = [selectedDate];
             } else {
-                // Obtener fechas filtradas por semana si aplica
                 const datesSet = new Set();
                 filteredData.forEach(r => {
                     const d = formatDateToDDMMYYYY(r[CONFIG.COL_KEYS.TIMESTAMP]);
@@ -1123,19 +1140,29 @@ self.addEventListener('fetch', (evt) => {
                 });
             }
 
-            // Si el usuario eligió un área específica en el filtro, limitamos a esa área
             const areasToDisplay = (selectedAreaFilter !== 'ALL') ? [selectedAreaFilter] : allKnownAreas;
 
             if (datesToRender.length === 0 || areasToDisplay.length === 0) {
                 countBadge.textContent = '0 registros';
                 emptyState.classList.remove('hidden');
+                
+                // Resetear Totales en Encabezados
+                document.getElementById('th-total-alm-mod').textContent = '(0)';
+                document.getElementById('th-total-diet-mod').textContent = '(0)';
+                document.getElementById('th-total-alm-bat').textContent = '(0)';
+                document.getElementById('th-total-diet-bat').textContent = '(0)';
                 return;
             }
 
             emptyState.classList.add('hidden');
             let totalRowsRendered = 0;
 
-            // Función auxiliar para formatear la celda con valor o '0 en rojo' si es vacío / cero
+            // Acumuladores de totales para encabezados de columna
+            let sumAlmMod = 0;
+            let sumDietMod = 0;
+            let sumAlmBat = 0;
+            let sumDietBat = 0;
+
             const formatValueCell = (val) => {
                 if (val === null || val === undefined || val === '') {
                     return `<span class="text-red-600 font-bold">0</span>`;
@@ -1150,7 +1177,6 @@ self.addEventListener('fetch', (evt) => {
             // Construcción iterativa para asegurar TODAS las áreas por fecha
             datesToRender.forEach(fecha => {
                 areasToDisplay.forEach(areaName => {
-                    // Buscar si existe registro correspondiente en filteredData/rawData
                     const record = filteredData.find(r => 
                         formatDateToDDMMYYYY(r[CONFIG.COL_KEYS.TIMESTAMP]) === fecha &&
                         String(r[CONFIG.COL_KEYS.AREA] || '').trim() === areaName
@@ -1160,6 +1186,11 @@ self.addEventListener('fetch', (evt) => {
                     const dietaModulos = record ? parseNumber(record[CONFIG.COL_KEYS.DIETA_MODULOS]) : null;
                     const almBatallon = record ? parseNumber(record[CONFIG.COL_KEYS.ALMUERZO_BATALLON]) : null;
                     const dietaBatallon = record ? parseNumber(record[CONFIG.COL_KEYS.DIETA_BATALLON]) : null;
+
+                    sumAlmMod += (almModulos || 0);
+                    sumDietMod += (dietaModulos || 0);
+                    sumAlmBat += (almBatallon || 0);
+                    sumDietBat += (dietaBatallon || 0);
 
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-50 transition-colors border-b border-slate-100";
@@ -1176,6 +1207,12 @@ self.addEventListener('fetch', (evt) => {
                 });
             });
 
+            // Actualizar Totales en los Encabezados
+            document.getElementById('th-total-alm-mod').textContent = `(${formatInteger(sumAlmMod)})`;
+            document.getElementById('th-total-diet-mod').textContent = `(${formatInteger(sumDietMod)})`;
+            document.getElementById('th-total-alm-bat').textContent = `(${formatInteger(sumAlmBat)})`;
+            document.getElementById('th-total-diet-bat').textContent = `(${formatInteger(sumDietBat)})`;
+
             countBadge.textContent = `${totalRowsRendered} registros`;
         }
 
@@ -1191,61 +1228,6 @@ self.addEventListener('fetch', (evt) => {
                     row.style.display = 'none';
                 }
             });
-        }
-
-        /**
-         * RENDER AREA ALERTS SYSTEM
-         */
-        function renderAlertsSection() {
-            const container = document.getElementById('alerts-section');
-            container.innerHTML = '';
-
-            const allKnownAreas = new Set(rawData.map(r => String(r[CONFIG.COL_KEYS.AREA] || '').trim()).filter(Boolean));
-            if (allKnownAreas.size === 0) return;
-
-            const activeAreasWithRequests = new Set();
-
-            filteredData.forEach(row => {
-                const area = String(row[CONFIG.COL_KEYS.AREA] || '').trim();
-                const totalLunches = (parseNumber(row[CONFIG.COL_KEYS.ALMUERZO_MODULOS]) || 0) + (parseNumber(row[CONFIG.COL_KEYS.ALMUERZO_BATALLON]) || 0);
-                if (totalLunches > 0) {
-                    activeAreasWithRequests.add(area);
-                }
-            });
-
-            const unrequestedAreas = Array.from(allKnownAreas).filter(a => !activeAreasWithRequests.has(a));
-
-            if (unrequestedAreas.length === 0) {
-                container.innerHTML = `
-                    <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-center space-x-3 text-emerald-800 text-xs sm:text-sm shadow-xs">
-                        <span class="text-lg">🟢</span>
-                        <div class="font-semibold">
-                            Todas las áreas cuentan con registro de almuerzos para el filtro seleccionado.
-                        </div>
-                    </div>
-                `;
-            } else {
-                let alertItems = unrequestedAreas.map(a => `
-                    <li class="flex items-center space-x-2 text-rose-800 font-semibold">
-                        <span class="w-2 h-2 rounded-full bg-rose-500"></span>
-                        <span>🔴 Área <strong>${sanitizeHTML(a)}</strong> no ha solicitado almuerzos</span>
-                    </li>
-                `).join('');
-
-                container.innerHTML = `
-                    <div class="bg-rose-50 border border-rose-200 rounded-2xl p-4 sm:p-5 text-xs sm:text-sm shadow-xs">
-                        <div class="flex items-center space-x-2 text-brand-red font-bold text-sm uppercase tracking-wide mb-2">
-                            <svg class="w-5 h-5 text-brand-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                            </svg>
-                            <span>⚠️ ALERTAS DE ÁREAS SIN SOLICITUD</span>
-                        </div>
-                        <ul class="space-y-1.5 mt-2 pl-1">
-                            ${alertItems}
-                        </ul>
-                    </div>
-                `;
-            }
         }
 
         /**
@@ -1346,9 +1328,6 @@ self.addEventListener('fetch', (evt) => {
         });
 
         document.addEventListener('DOMContentLoaded', async () => {
-            updateLiveClock();
-            setInterval(updateLiveClock, 1000);
-
             await initIndexedDB();
             registerPWA();
             fetchDataFromAPI();
