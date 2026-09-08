@@ -99,13 +99,15 @@
                     </div>
                 </div>
 
-                <!-- Connection Status & Actions (Reubicado en la parte superior derecha) -->
+                <!-- Live Date, Time & Connection Status -->
                 <div class="flex flex-wrap items-center justify-between md:justify-end gap-3 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100 text-xs sm:text-sm">
                     
-                    <!-- Estado de Sincronización Sub-Bar (Reubicado) -->
-                    <div class="flex items-center space-x-2 text-xs text-slate-500 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-xs">
-                        <span class="font-medium text-slate-700">Estado de Sincronización:</span>
-                        <span id="last-update-badge" class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono">Última actualización: --/--/---- --:--</span>
+                    <!-- Date & Time Display -->
+                    <div class="bg-slate-100/80 px-3 py-1.5 rounded-lg border border-slate-200/80 font-mono text-slate-700 flex items-center space-x-2">
+                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span id="live-date-time" class="font-semibold">05/09/2026 --:--:--</span>
                     </div>
 
                     <!-- Connection Status Pill -->
@@ -134,8 +136,12 @@
 
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         
-        <!-- Cache Info Sub-Bar -->
-        <div class="flex items-center justify-end text-xs text-slate-500 bg-white px-4 py-1.5 rounded-xl border border-slate-200 shadow-xs">
+        <!-- Last Sync Info Sub-Bar -->
+        <div class="flex flex-wrap items-center justify-between text-xs text-slate-500 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-xs">
+            <div class="flex items-center space-x-2">
+                <span class="font-medium text-slate-700">Estado de Sincronización:</span>
+                <span id="last-update-badge" class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono">Última actualización: --/--/---- --:--</span>
+            </div>
             <div id="cache-info" class="text-slate-400 italic">
                 Modo de lectura de datos activo
             </div>
@@ -264,6 +270,11 @@
 
         </section>
 
+        <!-- Alerts Banner Section -->
+        <section id="alerts-section" class="transition-all duration-300">
+            <!-- Dynamic Alert Container Populated JS -->
+        </section>
+
         <!-- Visual de Resumen por Fecha -->
         <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -333,14 +344,21 @@
                 </div>
             </div>
 
-            <!-- Responsive Table Wrapper (Conceptos como filas y Fechas como columnas) -->
+            <!-- Responsive Table Wrapper -->
             <div class="overflow-x-auto custom-scrollbar">
                 <table class="w-full text-xs sm:text-sm text-left border-collapse min-w-[700px]">
-                    <thead id="detailed-table-head">
-                        <!-- Dynamic Header with Fechas as Columns -->
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider border-b border-slate-200">
+                            <th class="py-3.5 px-4">Fecha</th>
+                            <th class="py-3.5 px-4">Área</th>
+                            <th class="py-3.5 px-4 text-right">Almuerzo Módulos</th>
+                            <th class="py-3.5 px-4 text-right">Dieta Módulos</th>
+                            <th class="py-3.5 px-4 text-right">Almuerzo Batallón</th>
+                            <th class="py-3.5 px-4 text-right">Dieta Batallón</th>
+                        </tr>
                     </thead>
                     <tbody id="detailed-table-body" class="divide-y divide-slate-100 text-slate-700 font-medium">
-                        <!-- Dynamic Rows for Conceptos -->
+                        <!-- Dynamic Detailed Rows -->
                     </tbody>
                 </table>
             </div>
@@ -649,8 +667,18 @@ self.addEventListener('fetch', (evt) => {
         }
 
         /**
-         * STATUS INDICATORS
+         * CLOCK AND STATUS INDICATORS
          */
+        function updateLiveClock() {
+            const now = new Date();
+            const dateStr = formatDateToDDMMYYYY(now);
+            const timeStr = now.toLocaleTimeString('es-PE', { hour12: false });
+            const clockEl = document.getElementById('live-date-time');
+            if (clockEl) {
+                clockEl.textContent = `${dateStr} - ${timeStr}`;
+            }
+        }
+
         function updateConnectionPill(statusType, customMessage) {
             const dot = document.getElementById('status-dot');
             const text = document.getElementById('status-text');
@@ -878,6 +906,7 @@ self.addEventListener('fetch', (evt) => {
             renderKPIs();
             renderSummaryMatrixAndChart();
             renderDetailedTable();
+            renderAlertsSection();
         }
 
         function resetFilters() {
@@ -1058,97 +1087,96 @@ self.addEventListener('fetch', (evt) => {
         }
 
         /**
-         * RENDER DETAILED RECORDS TABLE (CON CONCEPTOS EN FILAS Y FECHAS EN COLUMNAS)
+         * RENDER DETAILED RECORDS TABLE (CON ÁREAS OBLIGATORIAS Y VALORES VACÍOS EN ROJO)
          */
         function renderDetailedTable() {
-            const thead = document.getElementById('detailed-table-head');
             const tbody = document.getElementById('detailed-table-body');
             const emptyState = document.getElementById('table-empty-state');
             const countBadge = document.getElementById('records-count-badge');
 
-            thead.innerHTML = '';
             tbody.innerHTML = '';
 
-            // Obtener las fechas únicas presentes en los datos filtrados
-            const datesSet = new Set();
-            filteredData.forEach(r => {
-                const d = formatDateToDDMMYYYY(r[CONFIG.COL_KEYS.TIMESTAMP]);
-                if (d !== '--/--/----') datesSet.add(d);
-            });
+            // Obtener lista completa de todas las áreas existentes en rawData
+            const allKnownAreas = Array.from(
+                new Set(rawData.map(r => String(r[CONFIG.COL_KEYS.AREA] || '').trim()).filter(Boolean))
+            ).sort();
 
-            const uniqueDates = Array.from(datesSet).sort((a, b) => {
-                const pA = a.split('/').reverse().join('');
-                const pB = b.split('/').reverse().join('');
-                return pA.localeCompare(pB); // Orden cronológico horizontal
-            });
+            const selectedDate = document.getElementById('filter-date').value;
+            const selectedWeek = document.getElementById('filter-week').value;
+            const selectedAreaFilter = document.getElementById('filter-area').value;
 
-            if (uniqueDates.length === 0 || filteredData.length === 0) {
+            // Determinar qué fechas renderizar en la tabla
+            let datesToRender = [];
+            if (selectedDate !== 'ALL') {
+                datesToRender = [selectedDate];
+            } else {
+                // Obtener fechas filtradas por semana si aplica
+                const datesSet = new Set();
+                filteredData.forEach(r => {
+                    const d = formatDateToDDMMYYYY(r[CONFIG.COL_KEYS.TIMESTAMP]);
+                    if (d !== '--/--/----') datesSet.add(d);
+                });
+                datesToRender = Array.from(datesSet).sort((a, b) => {
+                    const pA = a.split('/').reverse().join('');
+                    const pB = b.split('/').reverse().join('');
+                    return pB.localeCompare(pA);
+                });
+            }
+
+            // Si el usuario eligió un área específica en el filtro, limitamos a esa área
+            const areasToDisplay = (selectedAreaFilter !== 'ALL') ? [selectedAreaFilter] : allKnownAreas;
+
+            if (datesToRender.length === 0 || areasToDisplay.length === 0) {
                 countBadge.textContent = '0 registros';
                 emptyState.classList.remove('hidden');
                 return;
             }
 
             emptyState.classList.add('hidden');
-            countBadge.textContent = `${filteredData.length} registros`;
+            let totalRowsRendered = 0;
 
-            // 1. Construir Encabezado: "Concepto" + Cada Fecha como Columna
-            let headerHTML = `<tr class="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider border-b border-slate-200">
-                <th class="py-3.5 px-4 sticky left-0 bg-slate-50 z-10 border-r border-slate-200">Concepto</th>`;
-            
-            uniqueDates.forEach(dateStr => {
-                headerHTML += `<th class="py-3.5 px-4 text-center font-mono">${dateStr}</th>`;
-            });
-            headerHTML += `</tr>`;
-            thead.innerHTML = headerHTML;
-
-            // 2. Definición de Conceptos (Filas requeridas)
-            const concepts = [
-                { id: 'almuerzoModulos', name: 'Almuerzo Módulos', key: CONFIG.COL_KEYS.ALMUERZO_MODULOS, colorClass: 'text-rose-700' },
-                { id: 'dietaModulos', name: 'Dieta Módulos', key: CONFIG.COL_KEYS.DIETA_MODULOS, colorClass: 'text-amber-700' },
-                { id: 'almuerzoBatallon', name: 'Almuerzo Batallón', key: CONFIG.COL_KEYS.ALMUERZO_BATALLON, colorClass: 'text-emerald-700' },
-                { id: 'dietaBatallon', name: 'Dieta Batallón', key: CONFIG.COL_KEYS.DIETA_BATALLON, colorClass: 'text-teal-700' }
-            ];
-
-            // Agrupar los totales acumulados por Fecha y por Concepto
-            const totalsByDateAndConcept = {};
-            uniqueDates.forEach(d => {
-                totalsByDateAndConcept[d] = {
-                    [CONFIG.COL_KEYS.ALMUERZO_MODULOS]: 0,
-                    [CONFIG.COL_KEYS.DIETA_MODULOS]: 0,
-                    [CONFIG.COL_KEYS.ALMUERZO_BATALLON]: 0,
-                    [CONFIG.COL_KEYS.DIETA_BATALLON]: 0
-                };
-            });
-
-            filteredData.forEach(row => {
-                const dateStr = formatDateToDDMMYYYY(row[CONFIG.COL_KEYS.TIMESTAMP]);
-                if (totalsByDateAndConcept[dateStr]) {
-                    totalsByDateAndConcept[dateStr][CONFIG.COL_KEYS.ALMUERZO_MODULOS] += (parseNumber(row[CONFIG.COL_KEYS.ALMUERZO_MODULOS]) || 0);
-                    totalsByDateAndConcept[dateStr][CONFIG.COL_KEYS.DIETA_MODULOS] += (parseNumber(row[CONFIG.COL_KEYS.DIETA_MODULOS]) || 0);
-                    totalsByDateAndConcept[dateStr][CONFIG.COL_KEYS.ALMUERZO_BATALLON] += (parseNumber(row[CONFIG.COL_KEYS.ALMUERZO_BATALLON]) || 0);
-                    totalsByDateAndConcept[dateStr][CONFIG.COL_KEYS.DIETA_BATALLON] += (parseNumber(row[CONFIG.COL_KEYS.DIETA_BATALLON]) || 0);
+            // Función auxiliar para formatear la celda con valor o '0 en rojo' si es vacío / cero
+            const formatValueCell = (val) => {
+                if (val === null || val === undefined || val === '') {
+                    return `<span class="text-red-600 font-bold">0</span>`;
                 }
-            });
+                const num = parseNumber(val);
+                if (num === null || num === 0) {
+                    return `<span class="text-red-600 font-bold">0</span>`;
+                }
+                return `<span class="font-medium text-slate-700">${formatInteger(num)}</span>`;
+            };
 
-            // 3. Renderizar cada Concepto como una Fila
-            concepts.forEach(concept => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 transition-colors border-b border-slate-100";
-                
-                let rowHTML = `<td class="py-3 px-4 font-semibold ${concept.colorClass} sticky left-0 bg-white z-10 border-r border-slate-200">${concept.name}</td>`;
-                
-                uniqueDates.forEach(dateStr => {
-                    const amount = totalsByDateAndConcept[dateStr][concept.key];
-                    if (amount > 0) {
-                        rowHTML += `<td class="py-3 px-4 text-center font-semibold text-slate-800">${formatInteger(amount)}</td>`;
-                    } else {
-                        rowHTML += `<td class="py-3 px-4 text-center font-bold text-red-600">0</td>`;
-                    }
+            // Construcción iterativa para asegurar TODAS las áreas por fecha
+            datesToRender.forEach(fecha => {
+                areasToDisplay.forEach(areaName => {
+                    // Buscar si existe registro correspondiente en filteredData/rawData
+                    const record = filteredData.find(r => 
+                        formatDateToDDMMYYYY(r[CONFIG.COL_KEYS.TIMESTAMP]) === fecha &&
+                        String(r[CONFIG.COL_KEYS.AREA] || '').trim() === areaName
+                    );
+
+                    const almModulos = record ? parseNumber(record[CONFIG.COL_KEYS.ALMUERZO_MODULOS]) : null;
+                    const dietaModulos = record ? parseNumber(record[CONFIG.COL_KEYS.DIETA_MODULOS]) : null;
+                    const almBatallon = record ? parseNumber(record[CONFIG.COL_KEYS.ALMUERZO_BATALLON]) : null;
+                    const dietaBatallon = record ? parseNumber(record[CONFIG.COL_KEYS.DIETA_BATALLON]) : null;
+
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-50 transition-colors border-b border-slate-100";
+                    tr.innerHTML = `
+                        <td class="py-3 px-4 font-mono font-medium text-slate-800">${fecha}</td>
+                        <td class="py-3 px-4 font-semibold text-slate-900">${sanitizeHTML(areaName)}</td>
+                        <td class="py-3 px-4 text-right">${formatValueCell(almModulos)}</td>
+                        <td class="py-3 px-4 text-right">${formatValueCell(dietaModulos)}</td>
+                        <td class="py-3 px-4 text-right">${formatValueCell(almBatallon)}</td>
+                        <td class="py-3 px-4 text-right">${formatValueCell(dietaBatallon)}</td>
+                    `;
+                    tbody.appendChild(tr);
+                    totalRowsRendered++;
                 });
-
-                tr.innerHTML = rowHTML;
-                tbody.appendChild(tr);
             });
+
+            countBadge.textContent = `${totalRowsRendered} registros`;
         }
 
         function filterTableBySearch() {
@@ -1163,6 +1191,61 @@ self.addEventListener('fetch', (evt) => {
                     row.style.display = 'none';
                 }
             });
+        }
+
+        /**
+         * RENDER AREA ALERTS SYSTEM
+         */
+        function renderAlertsSection() {
+            const container = document.getElementById('alerts-section');
+            container.innerHTML = '';
+
+            const allKnownAreas = new Set(rawData.map(r => String(r[CONFIG.COL_KEYS.AREA] || '').trim()).filter(Boolean));
+            if (allKnownAreas.size === 0) return;
+
+            const activeAreasWithRequests = new Set();
+
+            filteredData.forEach(row => {
+                const area = String(row[CONFIG.COL_KEYS.AREA] || '').trim();
+                const totalLunches = (parseNumber(row[CONFIG.COL_KEYS.ALMUERZO_MODULOS]) || 0) + (parseNumber(row[CONFIG.COL_KEYS.ALMUERZO_BATALLON]) || 0);
+                if (totalLunches > 0) {
+                    activeAreasWithRequests.add(area);
+                }
+            });
+
+            const unrequestedAreas = Array.from(allKnownAreas).filter(a => !activeAreasWithRequests.has(a));
+
+            if (unrequestedAreas.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-center space-x-3 text-emerald-800 text-xs sm:text-sm shadow-xs">
+                        <span class="text-lg">🟢</span>
+                        <div class="font-semibold">
+                            Todas las áreas cuentan con registro de almuerzos para el filtro seleccionado.
+                        </div>
+                    </div>
+                `;
+            } else {
+                let alertItems = unrequestedAreas.map(a => `
+                    <li class="flex items-center space-x-2 text-rose-800 font-semibold">
+                        <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                        <span>🔴 Área <strong>${sanitizeHTML(a)}</strong> no ha solicitado almuerzos</span>
+                    </li>
+                `).join('');
+
+                container.innerHTML = `
+                    <div class="bg-rose-50 border border-rose-200 rounded-2xl p-4 sm:p-5 text-xs sm:text-sm shadow-xs">
+                        <div class="flex items-center space-x-2 text-brand-red font-bold text-sm uppercase tracking-wide mb-2">
+                            <svg class="w-5 h-5 text-brand-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <span>⚠️ ALERTAS DE ÁREAS SIN SOLICITUD</span>
+                        </div>
+                        <ul class="space-y-1.5 mt-2 pl-1">
+                            ${alertItems}
+                        </ul>
+                    </div>
+                `;
+            }
         }
 
         /**
@@ -1263,6 +1346,9 @@ self.addEventListener('fetch', (evt) => {
         });
 
         document.addEventListener('DOMContentLoaded', async () => {
+            updateLiveClock();
+            setInterval(updateLiveClock, 1000);
+
             await initIndexedDB();
             registerPWA();
             fetchDataFromAPI();
